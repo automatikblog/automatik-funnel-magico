@@ -45,18 +45,6 @@ const QuestionStep: React.FC<QuestionStepProps> = ({
 
   const handleOptionClick = (option: string) => {
     onAnswer(question.id, option);
-    
-    // Não avançar automaticamente se for "Outro(a)" na pergunta 1
-    if (question.id === 'area' && option === 'Outro(a)') {
-      return;
-    }
-    
-    // Para outras perguntas, avançar automaticamente após um delay
-    if (onNext) {
-      setTimeout(() => {
-        onNext();
-      }, 300);
-    }
   };
 
   return (

@@ -114,18 +114,17 @@ const QuestionnaireForm: React.FC = () => {
       return;
     }
     
-    handleNext();
+    // Para outras perguntas, avançar automaticamente após um delay
+    setTimeout(() => {
+      handleNext();
+    }, 300);
   };
 
   const handleNext = () => {
     if (currentStep < questions.length - 1) {
-      setTimeout(() => {
-        setCurrentStep(prev => prev + 1);
-      }, 300);
+      setCurrentStep(prev => prev + 1);
     } else {
-      setTimeout(() => {
-        setShowContactForm(true);
-      }, 300);
+      setShowContactForm(true);
     }
   };
 
