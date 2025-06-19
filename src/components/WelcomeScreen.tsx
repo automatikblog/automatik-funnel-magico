@@ -11,6 +11,13 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
     <div className="min-h-screen bg-automatik-dark flex items-center justify-center p-4">
       <div className="w-full max-w-2xl text-center animate-fade-in-up">
         <div className="mb-8">
+          <div className="mb-8 flex justify-center">
+            <img 
+              src="/lovable-uploads/158f3d19-0606-4909-b100-63556f6d82b4.png" 
+              alt="Automatik Blog" 
+              className="h-16 md:h-20 object-contain"
+            />
+          </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
             Descubra como a <span className="text-automatik-turquoise">Automatik Blog</span> pode revolucionar seu blog
           </h1>
