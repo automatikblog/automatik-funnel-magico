@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 
 export interface FormData {
@@ -32,6 +33,7 @@ export interface EnrichedData extends FormData {
   clickid?: string;
   form: string;
   isWordPress?: boolean;
+  isQualified?: boolean;
 }
 
 export const useFormData = () => {
@@ -59,6 +61,27 @@ export const useFormData = () => {
 
   const updateWordPressStatus = (status: boolean) => {
     setIsWordPress(status);
+  };
+
+  const isQualified = () => {
+    // Verificar se as respostas desqualificam o lead
+    const disqualifyingAnswers = [
+      'Não publico, mas quero automatizar isso',
+      'Não publico e não tenho planos',
+      'Estou planejando começar',
+      'Não tenho interesse',
+      'Não faturo',
+      'Não'
+    ];
+
+    const answers = [
+      formData.frequencia,
+      formData.familiaridade,
+      formData.faturamento,
+      formData.investimento
+    ];
+
+    return !answers.some(answer => disqualifyingAnswers.includes(answer));
   };
 
   const getCookieValue = (name: string): string | undefined => {
@@ -92,7 +115,8 @@ export const useFormData = () => {
       pais: 'Brasil',
       clickid: clickid,
       form: 'lovableform',
-      isWordPress: isWordPress
+      isWordPress: isWordPress,
+      isQualified: isQualified()
     };
   };
 
@@ -128,6 +152,7 @@ export const useFormData = () => {
     updateField,
     updateWordPressStatus,
     submitForm,
-    getEnrichedData
+    getEnrichedData,
+    isQualified: isQualified()
   };
 };

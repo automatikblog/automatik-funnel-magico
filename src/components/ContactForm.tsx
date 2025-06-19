@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { FormData } from '../hooks/useFormData';
 import WordPressDetector from './WordPressDetector';
 
@@ -10,6 +10,9 @@ interface ContactFormProps {
   updateWordPressStatus: (status: boolean) => void;
   onSubmit: () => void;
   onPrevious: () => void;
+  onDisqualify: (reason: string) => void;
+  isWordPress: boolean;
+  wordPressChecked: boolean;
 }
 
 const ContactForm: React.FC<ContactFormProps> = ({ 
@@ -17,14 +20,24 @@ const ContactForm: React.FC<ContactFormProps> = ({
   updateField, 
   updateWordPressStatus,
   onSubmit, 
-  onPrevious 
+  onPrevious,
+  onDisqualify,
+  isWordPress,
+  wordPressChecked
 }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isWordPress && wordPressChecked) {
+      onDisqualify('wordpress');
+      return;
+    }
+    
     onSubmit();
   };
 
   const isFormValid = formData.nome && formData.email && formData.telefone && formData.blogLink;
+  const isBlocked = wordPressChecked && !isWordPress;
 
   return (
     <div className="animate-fade-in-up">
@@ -99,18 +112,33 @@ const ContactForm: React.FC<ContactFormProps> = ({
             onUrlChange={(url) => updateField('blogLink', url)}
             onWordPressDetected={updateWordPressStatus}
           />
+          
+          {isBlocked && (
+            <div className="mt-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="font-semibold text-red-400">Site não compatível</h4>
+                  <p className="text-red-300 text-sm mt-1">
+                    Nossa solução foi desenvolvida especificamente para sites WordPress. 
+                    Infelizmente não conseguimos ajudar com outros tipos de sites no momento.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <button
           type="submit"
-          disabled={!isFormValid}
+          disabled={!isFormValid || isBlocked}
           className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all ${
-            isFormValid
+            isFormValid && !isBlocked
               ? 'bg-automatik-turquoise text-automatik-dark hover:bg-automatik-turquoise/90 transform hover:scale-[1.02]'
               : 'bg-gray-600 text-gray-400 cursor-not-allowed'
           }`}
         >
-          Finalizar cadastro
+          {isBlocked ? 'Site não compatível' : 'Finalizar cadastro'}
         </button>
       </form>
     </div>

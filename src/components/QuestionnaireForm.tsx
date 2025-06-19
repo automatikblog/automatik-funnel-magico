@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useFormData } from '../hooks/useFormData';
 import ProgressBar from './ProgressBar';
@@ -5,6 +6,7 @@ import QuestionStep from './QuestionStep';
 import ContactForm from './ContactForm';
 import ThankYouMessage from './ThankYouMessage';
 import WelcomeScreen from './WelcomeScreen';
+import DisqualifiedScreen from './DisqualifiedScreen';
 
 const questions = [
   {
@@ -68,17 +70,55 @@ const QuestionnaireForm: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [showContactForm, setShowContactForm] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
-  const { formData, updateField, updateWordPressStatus, submitForm } = useFormData();
+  const [showDisqualified, setShowDisqualified] = useState(false);
+  const [disqualificationReason, setDisqualificationReason] = useState('');
+  const [isWordPress, setIsWordPress] = useState(false);
+  const [wordPressChecked, setWordPressChecked] = useState(false);
+  
+  const { formData, updateField, updateWordPressStatus, submitForm, isQualified } = useFormData();
 
-  const totalSteps = questions.length + 1; // +1 para o formulário de contato
+  const totalSteps = questions.length + 1;
 
   const handleStart = () => {
     setShowWelcome(false);
   };
 
+  const checkForDisqualification = (field: string, answer: string) => {
+    const disqualifyingAnswers = {
+      frequencia: ['Não publico, mas quero automatizar isso', 'Não publico e não tenho planos', 'Estou planejando começar'],
+      familiaridade: ['Não tenho interesse'],
+      faturamento: ['Não faturo'],
+      investimento: ['Não']
+    };
+
+    if (disqualifyingAnswers[field as keyof typeof disqualifyingAnswers]?.includes(answer)) {
+      return field;
+    }
+    return null;
+  };
+
   const handleQuestionAnswer = (field: string, answer: string) => {
     updateField(field as keyof typeof formData, answer);
     
+    // Verificar se a resposta desqualifica o lead
+    const disqualificationReason = checkForDisqualification(field, answer);
+    if (disqualificationReason) {
+      setDisqualificationReason(disqualificationReason);
+      setTimeout(() => {
+        setShowDisqualified(true);
+      }, 300);
+      return;
+    }
+    
+    // Não avançar automaticamente se for "Outro(a)" na pergunta 1
+    if (field === 'area' && answer === 'Outro(a)') {
+      return;
+    }
+    
+    handleNext();
+  };
+
+  const handleNext = () => {
     if (currentStep < questions.length - 1) {
       setTimeout(() => {
         setCurrentStep(prev => prev + 1);
@@ -101,6 +141,17 @@ const QuestionnaireForm: React.FC = () => {
     }
   };
 
+  const handleDisqualify = (reason: string) => {
+    setDisqualificationReason(reason);
+    setShowDisqualified(true);
+  };
+
+  const handleWordPressStatusUpdate = (status: boolean) => {
+    setIsWordPress(status);
+    setWordPressChecked(true);
+    updateWordPressStatus(status);
+  };
+
   const handlePrevious = () => {
     if (showContactForm) {
       setShowContactForm(false);
@@ -111,8 +162,16 @@ const QuestionnaireForm: React.FC = () => {
     }
   };
 
+  const canAdvanceFromTextInput = () => {
+    return formData.area === 'Outro(a)' && formData.areaOutra.trim().length > 0;
+  };
+
   if (showWelcome) {
     return <WelcomeScreen onStart={handleStart} />;
+  }
+
+  if (showDisqualified) {
+    return <DisqualifiedScreen reason={disqualificationReason} />;
   }
 
   if (showThankYou) {
@@ -127,9 +186,12 @@ const QuestionnaireForm: React.FC = () => {
           <ContactForm 
             formData={formData}
             updateField={updateField}
-            updateWordPressStatus={updateWordPressStatus}
+            updateWordPressStatus={handleWordPressStatusUpdate}
             onSubmit={handleContactSubmit}
             onPrevious={handlePrevious}
+            onDisqualify={handleDisqualify}
+            isWordPress={isWordPress}
+            wordPressChecked={wordPressChecked}
           />
         </div>
       </div>
@@ -145,8 +207,10 @@ const QuestionnaireForm: React.FC = () => {
           onAnswer={handleQuestionAnswer}
           onTextFieldUpdate={handleTextFieldUpdate}
           onPrevious={currentStep > 0 ? handlePrevious : undefined}
+          onNext={handleNext}
           selectedAnswer={formData[questions[currentStep].id as keyof typeof formData]}
           textFieldValue={formData.areaOutra}
+          canAdvance={canAdvanceFromTextInput()}
         />
       </div>
     </div>
