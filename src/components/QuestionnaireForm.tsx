@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useFormData } from '../hooks/useFormData';
 import ProgressBar from './ProgressBar';
@@ -52,15 +51,14 @@ const questions = [
     ]
   },
   {
-    id: 'faturamento',
-    title: 'Quanto você fatura com seu blog ou site atualmente?',
+    id: 'papel',
+    title: 'Qual é o papel do seu blog ou dos blogs que você gerencia hoje?',
     options: [
-      'Não faturo',
-      'De R$ 1 a R$ 500',
-      'De R$ 500 a R$ 2.000',
-      'De R$ 2.000 a R$ 5.000',
-      'De R$ 5.000 a R$ 10.000',
-      'Acima de R$ 10.000'
+      'É um dos principais canais de faturamento (meu ou dos meus clientes)',
+      'Uso como canal de atração de clientes ou geração de autoridade',
+      'Ainda não tenho retorno, mas quero transformar isso',
+      'Está parado / sem uso no momento',
+      'Ainda não tenho blog, mas pretendo começar'
     ]
   },
   {
@@ -112,7 +110,7 @@ const QuestionnaireForm: React.FC = () => {
     const disqualifyingAnswers = {
       frequencia: ['Não publico, mas quero automatizar isso', 'Não publico e não tenho planos', 'Estou planejando começar'],
       familiaridade: ['Não tenho interesse'],
-      faturamento: ['Não faturo'],
+      papel: ['Está parado / sem uso no momento', 'Ainda não tenho blog, mas pretendo começar', 'Ainda não tenho retorno, mas quero transformar isso'],
       investimento: ['Não']
     };
 

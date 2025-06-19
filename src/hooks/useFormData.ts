@@ -1,5 +1,4 @@
 
-
 import { useState } from 'react';
 
 export interface FormData {
@@ -7,7 +6,7 @@ export interface FormData {
   areaOutra: string;
   frequencia: string;
   familiaridade: string;
-  faturamento: string;
+  papel: string;
   investimento: string;
   nome: string;
   email: string;
@@ -43,7 +42,7 @@ export const useFormData = () => {
     areaOutra: '',
     frequencia: '',
     familiaridade: '',
-    faturamento: '',
+    papel: '',
     investimento: '',
     nome: '',
     email: '',
@@ -71,14 +70,16 @@ export const useFormData = () => {
       'Não publico e não tenho planos',
       'Estou planejando começar',
       'Não tenho interesse',
-      'Não faturo',
+      'Está parado / sem uso no momento',
+      'Ainda não tenho blog, mas pretendo começar',
+      'Ainda não tenho retorno, mas quero transformar isso',
       'Não'
     ];
 
     const answers = [
       formData.frequencia,
       formData.familiaridade,
-      formData.faturamento,
+      formData.papel,
       formData.investimento
     ];
 
@@ -183,4 +184,3 @@ export const useFormData = () => {
     isQualified: isQualified()
   };
 };
-
