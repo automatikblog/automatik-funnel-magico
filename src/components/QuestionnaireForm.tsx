@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useFormData } from '../hooks/useFormData';
 import ProgressBar from './ProgressBar';
@@ -52,6 +51,15 @@ const questions = [
       'De R$ 5.000 a R$ 10.000',
       'Acima de R$ 10.000'
     ]
+  },
+  {
+    id: 'investimento',
+    title: 'Nossos planos variam entre R$67 e R$1.299 por mês, dependendo do volume de artigos, integrações e recursos avançados. Se você enxergar valor no que a Automatik Blog oferece — e isso fizer sentido pro crescimento do seu blog ou agência — você estaria disposto a fazer esse investimento?',
+    options: [
+      'Sim',
+      'Talvez',
+      'Não'
+    ]
   }
 ];
 
@@ -80,6 +88,10 @@ const QuestionnaireForm: React.FC = () => {
         setShowContactForm(true);
       }, 300);
     }
+  };
+
+  const handleTextFieldUpdate = (field: string, value: string) => {
+    updateField(field as keyof typeof formData, value);
   };
 
   const handleContactSubmit = async () => {
@@ -130,8 +142,10 @@ const QuestionnaireForm: React.FC = () => {
         <QuestionStep
           question={questions[currentStep]}
           onAnswer={handleQuestionAnswer}
+          onTextFieldUpdate={handleTextFieldUpdate}
           onPrevious={currentStep > 0 ? handlePrevious : undefined}
           selectedAnswer={formData[questions[currentStep].id as keyof typeof formData]}
+          textFieldValue={formData.areaOutra}
         />
       </div>
     </div>

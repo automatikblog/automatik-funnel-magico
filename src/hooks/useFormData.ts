@@ -3,9 +3,11 @@ import { useState } from 'react';
 
 export interface FormData {
   area: string;
+  areaOutra: string;
   frequencia: string;
   familiaridade: string;
   faturamento: string;
+  investimento: string;
   nome: string;
   email: string;
   telefone: string;
@@ -35,9 +37,11 @@ export interface EnrichedData extends FormData {
 export const useFormData = () => {
   const [formData, setFormData] = useState<FormData>({
     area: '',
+    areaOutra: '',
     frequencia: '',
     familiaridade: '',
     faturamento: '',
+    investimento: '',
     nome: '',
     email: '',
     telefone: '',

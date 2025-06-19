@@ -39,7 +39,7 @@ const ThankYouMessage: React.FC = () => {
               <div>
                 <h3 className="font-semibold text-white">Contato personalizado</h3>
                 <p className="text-gray-400">
-                  Entraremos em contato em breve com uma proposta personalizada para seu negócio
+                  Entraremos em contato em breve pelo WhatsApp para agendarmos uma demonstração personalizada para seu blog
                 </p>
               </div>
             </div>

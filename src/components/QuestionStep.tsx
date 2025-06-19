@@ -11,16 +11,22 @@ interface Question {
 interface QuestionStepProps {
   question: Question;
   onAnswer: (field: string, answer: string) => void;
+  onTextFieldUpdate?: (field: string, value: string) => void;
   onPrevious?: () => void;
   selectedAnswer?: string;
+  textFieldValue?: string;
 }
 
 const QuestionStep: React.FC<QuestionStepProps> = ({ 
   question, 
   onAnswer, 
+  onTextFieldUpdate,
   onPrevious,
-  selectedAnswer 
+  selectedAnswer,
+  textFieldValue
 }) => {
+  const showTextInput = question.id === 'area' && selectedAnswer === 'Outro(a)';
+
   return (
     <div className="animate-fade-in-up">
       <div className="mb-8">
@@ -60,6 +66,22 @@ const QuestionStep: React.FC<QuestionStepProps> = ({
             </div>
           </button>
         ))}
+
+        {showTextInput && onTextFieldUpdate && (
+          <div className="mt-6 animate-fade-in-up">
+            <label htmlFor="areaOutra" className="block text-sm font-medium text-gray-300 mb-2">
+              Especifique sua área de atuação:
+            </label>
+            <input
+              type="text"
+              id="areaOutra"
+              value={textFieldValue || ''}
+              onChange={(e) => onTextFieldUpdate('areaOutra', e.target.value)}
+              className="w-full px-4 py-3 bg-automatik-dark-secondary border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-automatik-turquoise focus:ring-1 focus:ring-automatik-turquoise focus:outline-none transition-colors"
+              placeholder="Digite sua área de atuação"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
