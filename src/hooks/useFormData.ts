@@ -1,4 +1,5 @@
 
+
 import { useState } from 'react';
 
 export interface FormData {
@@ -84,27 +85,27 @@ export const useFormData = () => {
     return !answers.some(answer => disqualifyingAnswers.includes(answer));
   };
 
-  const getCookieValue = (name: string): string | undefined => {
+  // Função para ler o cookie exatamente como no exemplo que funciona
+  const getCookieRaw = (name: string) => {
+    console.log('=== CAPTURANDO COOKIE COM MÉTODO DO EXEMPLO ===');
+    console.log('Document.cookie completo:', document.cookie);
+    console.log('Procurando cookie:', name);
+    
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     
-    console.log('=== DEBUG COOKIE CAPTURE ===');
-    console.log('Document.cookie completo:', document.cookie);
-    console.log('Procurando cookie:', name);
-    console.log('Value após processamento:', value);
+    console.log('Value processado:', value);
     console.log('Parts após split:', parts);
+    console.log('Parts.length:', parts.length);
     
-    if (parts.length === 2) {
-      const cookieValue = parts.pop()?.split(';').shift();
-      console.log('Cookie value encontrado:', cookieValue);
-      console.log('Tipo do cookie value:', typeof cookieValue);
-      console.log('Cookie value é vazio?', cookieValue === '');
-      console.log('Cookie value é undefined?', cookieValue === undefined);
-      return cookieValue || undefined;
-    }
+    const result = (parts.length === 2) ? parts.pop()?.split(';').shift() : '';
     
-    console.log('Cookie não encontrado - parts.length:', parts.length);
-    return undefined;
+    console.log('Resultado bruto:', result);
+    console.log('Tipo do resultado:', typeof result);
+    console.log('Resultado é string vazia?', result === '');
+    console.log('Resultado é undefined?', result === undefined);
+    
+    return result;
   };
 
   const getEnrichedData = (): EnrichedData => {
@@ -112,14 +113,14 @@ export const useFormData = () => {
     const userAgent = navigator.userAgent;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
     
-    // Capturar o cookie rtkclickid-store no momento do envio
+    // Capturar o cookie rtkclickid-store no momento do envio usando o método que funciona
     console.log('=== CAPTURANDO CLICKID NO MOMENTO DO ENVIO ===');
-    const clickid = getCookieValue('rtkclickid-store');
+    const clickidRaw = getCookieRaw('rtkclickid-store');
+    const clickid = clickidRaw || undefined;
     
-    console.log('Clickid capturado:', clickid);
-    console.log('Tipo do clickid:', typeof clickid);
-    console.log('Clickid é undefined?', clickid === undefined);
-    console.log('Clickid é string vazia?', clickid === '');
+    console.log('Clickid capturado (raw):', clickidRaw);
+    console.log('Clickid final:', clickid);
+    console.log('Tipo do clickid final:', typeof clickid);
     
     return {
       ...formData,
@@ -135,7 +136,7 @@ export const useFormData = () => {
       data_submissao: new Date().toISOString(),
       user_agent: userAgent,
       pais: 'Brasil',
-      clickid: clickid || undefined,
+      clickid: clickid,
       form: 'lovableform',
       isWordPress: isWordPress,
       isQualified: isQualified()
@@ -182,3 +183,4 @@ export const useFormData = () => {
     isQualified: isQualified()
   };
 };
+
