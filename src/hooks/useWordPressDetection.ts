@@ -1,5 +1,4 @@
 
-
 import { useState, useCallback } from 'react';
 
 export interface WordPressDetectionResult {
@@ -29,37 +28,11 @@ export const useWordPressDetection = () => {
     }));
 
     try {
-      // Método 1: Verificar REST API do WordPress
-      const wpApiUrl = normalizedUrl.endsWith('/') 
-        ? normalizedUrl + 'wp-json/wp/v2/' 
-        : normalizedUrl + '/wp-json/wp/v2/';
-      
-      try {
-        const apiResponse = await fetch(wpApiUrl, { 
-          method: 'HEAD',
-          mode: 'no-cors'
-        });
-        
-        // Se chegou aqui sem erro, provavelmente é WordPress
-        const result = { isWordPress: true, isLoading: false, error: null, checked: true };
-        setResults(prev => ({ ...prev, [url]: result }));
-        return result;
-      } catch (apiError) {
-        // Continue para outras verificações
-      }
+      let isWordPress = false;
 
-      // Método 2: Verificar URLs típicas do WordPress
-      const wpPaths = ['/wp-content/', '/wp-includes/', '/wp-admin/'];
-      const hasWpPath = wpPaths.some(path => normalizedUrl.includes(path));
-      
-      if (hasWpPath) {
-        const result = { isWordPress: true, isLoading: false, error: null, checked: true };
-        setResults(prev => ({ ...prev, [url]: result }));
-        return result;
-      }
-
-      // Método 3: Tentar acessar a página principal e verificar no HTML
+      // Método 1: Tentar acessar a página principal e verificar no HTML
       try {
+        console.log('Tentando acessar HTML da página:', normalizedUrl);
         const response = await fetch(normalizedUrl, { 
           method: 'GET',
           mode: 'cors'
@@ -67,34 +40,74 @@ export const useWordPressDetection = () => {
         
         if (response.ok) {
           const html = await response.text();
+          console.log('HTML obtido, verificando indicadores WordPress...');
           
-          // Verificar indicadores comuns do WordPress
+          // Verificar indicadores mais específicos do WordPress
           const wpIndicators = [
-            /wp-content/i,
-            /wp-includes/i,
-            /generator.*wordpress/i,
-            /class.*wp-/i,
-            /wp-json/i,
-            /wp_enqueue_script/i
+            /wp-content\/themes/i,
+            /wp-content\/plugins/i,
+            /wp-includes\/js/i,
+            /<meta[^>]*generator[^>]*wordpress/i,
+            /wp-json\/wp\/v2/i,
+            /wp_enqueue_script/i,
+            /class=[^>]*wp-/i
           ];
           
-          const isWordPress = wpIndicators.some(pattern => pattern.test(html));
-          const result = { isWordPress, isLoading: false, error: null, checked: true };
-          setResults(prev => ({ ...prev, [url]: result }));
-          return result;
+          isWordPress = wpIndicators.some(pattern => {
+            const match = pattern.test(html);
+            if (match) {
+              console.log('Indicador WordPress encontrado:', pattern);
+            }
+            return match;
+          });
         }
       } catch (corsError) {
-        // CORS bloqueou, mas isso é normal
-        console.log('CORS blocked, using fallback detection');
+        console.log('CORS bloqueou acesso ao HTML, tentando outros métodos');
       }
 
-      // Fallback: Verificar apenas pela URL
-      const urlBasedDetection = /wordpress|wp-|\/wp\//i.test(normalizedUrl);
-      const result = { isWordPress: urlBasedDetection, isLoading: false, error: null, checked: true };
+      // Método 2: Verificar REST API do WordPress (apenas se HTML não funcionou)
+      if (!isWordPress) {
+        try {
+          const wpApiUrl = normalizedUrl.endsWith('/') 
+            ? normalizedUrl + 'wp-json/wp/v2/' 
+            : normalizedUrl + '/wp-json/wp/v2/';
+          
+          console.log('Tentando acessar WordPress REST API:', wpApiUrl);
+          const apiResponse = await fetch(wpApiUrl, { 
+            method: 'GET',
+            mode: 'cors'
+          });
+          
+          if (apiResponse.ok) {
+            const apiData = await apiResponse.json();
+            // Verificar se a resposta contém estrutura típica da API do WordPress
+            if (apiData && (apiData.namespace || apiData.routes || Array.isArray(apiData))) {
+              console.log('WordPress REST API detectada');
+              isWordPress = true;
+            }
+          }
+        } catch (apiError) {
+          console.log('Erro ao acessar WordPress REST API:', apiError);
+        }
+      }
+
+      // Método 3: Verificar URLs típicas do WordPress (apenas se outros métodos falharam)
+      if (!isWordPress) {
+        const wpPaths = ['/wp-content/', '/wp-includes/', '/wp-admin/'];
+        const hasWpPath = wpPaths.some(path => normalizedUrl.includes(path));
+        
+        if (hasWpPath) {
+          console.log('Path típico do WordPress encontrado na URL');
+          isWordPress = true;
+        }
+      }
+
+      const result = { isWordPress, isLoading: false, error: null, checked: true };
       setResults(prev => ({ ...prev, [url]: result }));
       return result;
 
     } catch (error) {
+      console.error('Erro na detecção de WordPress:', error);
       const result = { 
         isWordPress: false, 
         isLoading: false, 
@@ -112,4 +125,3 @@ export const useWordPressDetection = () => {
 
   return { detectWordPress, getResult };
 };
-
