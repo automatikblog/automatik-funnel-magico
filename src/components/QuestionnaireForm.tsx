@@ -68,7 +68,7 @@ const QuestionnaireForm: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [showContactForm, setShowContactForm] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
-  const { formData, updateField, submitForm } = useFormData();
+  const { formData, updateField, updateWordPressStatus, submitForm } = useFormData();
 
   const totalSteps = questions.length + 1; // +1 para o formulário de contato
 
@@ -127,6 +127,7 @@ const QuestionnaireForm: React.FC = () => {
           <ContactForm 
             formData={formData}
             updateField={updateField}
+            updateWordPressStatus={updateWordPressStatus}
             onSubmit={handleContactSubmit}
             onPrevious={handlePrevious}
           />

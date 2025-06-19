@@ -1,11 +1,13 @@
 
-import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import React from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { FormData } from '../hooks/useFormData';
+import WordPressDetector from './WordPressDetector';
 
 interface ContactFormProps {
   formData: FormData;
   updateField: (field: keyof FormData, value: string) => void;
+  updateWordPressStatus: (status: boolean) => void;
   onSubmit: () => void;
   onPrevious: () => void;
 }
@@ -13,32 +15,16 @@ interface ContactFormProps {
 const ContactForm: React.FC<ContactFormProps> = ({ 
   formData, 
   updateField, 
+  updateWordPressStatus,
   onSubmit, 
   onPrevious 
 }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const formatPhone = (value: string) => {
-    const numbers = value.replace(/\D/g, '');
-    if (numbers.length <= 11) {
-      return numbers.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-    }
-    return value;
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhone(e.target.value);
-    updateField('telefone', formatted);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    await onSubmit();
-    setIsSubmitting(false);
+    onSubmit();
   };
 
-  const isFormValid = formData.nome && formData.email && formData.telefone;
+  const isFormValid = formData.nome && formData.email && formData.telefone && formData.blogLink;
 
   return (
     <div className="animate-fade-in-up">
@@ -51,10 +37,10 @@ const ContactForm: React.FC<ContactFormProps> = ({
           Voltar
         </button>
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight">
-          Quase pronto! 🚀
+          Quase lá! Vamos finalizar seu cadastro
         </h2>
         <p className="text-gray-400">
-          Preencha seus dados para receber o resultado personalizado
+          Preencha seus dados para que possamos entrar em contato
         </p>
       </div>
 
@@ -66,11 +52,11 @@ const ContactForm: React.FC<ContactFormProps> = ({
           <input
             type="text"
             id="nome"
+            required
             value={formData.nome}
             onChange={(e) => updateField('nome', e.target.value)}
             className="w-full px-4 py-3 bg-automatik-dark-secondary border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-automatik-turquoise focus:ring-1 focus:ring-automatik-turquoise focus:outline-none transition-colors"
             placeholder="Seu nome completo"
-            required
           />
         </div>
 
@@ -81,11 +67,11 @@ const ContactForm: React.FC<ContactFormProps> = ({
           <input
             type="email"
             id="email"
+            required
             value={formData.email}
             onChange={(e) => updateField('email', e.target.value)}
             className="w-full px-4 py-3 bg-automatik-dark-secondary border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-automatik-turquoise focus:ring-1 focus:ring-automatik-turquoise focus:outline-none transition-colors"
             placeholder="seu@email.com"
-            required
           />
         </div>
 
@@ -96,45 +82,35 @@ const ContactForm: React.FC<ContactFormProps> = ({
           <input
             type="tel"
             id="telefone"
+            required
             value={formData.telefone}
-            onChange={handlePhoneChange}
+            onChange={(e) => updateField('telefone', e.target.value)}
             className="w-full px-4 py-3 bg-automatik-dark-secondary border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-automatik-turquoise focus:ring-1 focus:ring-automatik-turquoise focus:outline-none transition-colors"
             placeholder="(11) 99999-9999"
-            required
           />
         </div>
 
         <div>
           <label htmlFor="blogLink" className="block text-sm font-medium text-gray-300 mb-2">
-            Link do seu blog WordPress (opcional)
+            Link do seu site/blog *
           </label>
-          <input
-            type="url"
-            id="blogLink"
-            value={formData.blogLink}
-            onChange={(e) => updateField('blogLink', e.target.value)}
-            className="w-full px-4 py-3 bg-automatik-dark-secondary border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-automatik-turquoise focus:ring-1 focus:ring-automatik-turquoise focus:outline-none transition-colors"
-            placeholder="https://seublog.com.br"
+          <WordPressDetector
+            url={formData.blogLink}
+            onUrlChange={(url) => updateField('blogLink', url)}
+            onWordPressDetected={updateWordPressStatus}
           />
         </div>
 
         <button
           type="submit"
-          disabled={!isFormValid || isSubmitting}
-          className={`w-full py-4 rounded-xl font-semibold text-white flex items-center justify-center space-x-2 transition-all duration-300 ${
-            isFormValid && !isSubmitting
-              ? 'bg-gradient-to-r from-automatik-turquoise to-automatik-purple hover:shadow-lg hover:scale-105' 
-              : 'bg-gray-600 cursor-not-allowed'
+          disabled={!isFormValid}
+          className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all ${
+            isFormValid
+              ? 'bg-automatik-turquoise text-automatik-dark hover:bg-automatik-turquoise/90 transform hover:scale-[1.02]'
+              : 'bg-gray-600 text-gray-400 cursor-not-allowed'
           }`}
         >
-          {isSubmitting ? (
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-          ) : (
-            <>
-              <span>Finalizar questionário</span>
-              <ArrowRight className="w-5 h-5" />
-            </>
-          )}
+          Finalizar cadastro
         </button>
       </form>
     </div>

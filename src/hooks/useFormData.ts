@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 
 export interface FormData {
@@ -32,6 +31,7 @@ export interface EnrichedData extends FormData {
   user_agent: string;
   clickid?: string;
   form: string;
+  isWordPress?: boolean;
 }
 
 export const useFormData = () => {
@@ -48,11 +48,17 @@ export const useFormData = () => {
     blogLink: ''
   });
 
+  const [isWordPress, setIsWordPress] = useState<boolean>(false);
+
   const updateField = (field: keyof FormData, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+  };
+
+  const updateWordPressStatus = (status: boolean) => {
+    setIsWordPress(status);
   };
 
   const getCookieValue = (name: string): string | undefined => {
@@ -85,7 +91,8 @@ export const useFormData = () => {
       user_agent: userAgent,
       pais: 'Brasil',
       clickid: clickid,
-      form: 'lovableform'
+      form: 'lovableform',
+      isWordPress: isWordPress
     };
   };
 
@@ -119,6 +126,7 @@ export const useFormData = () => {
   return {
     formData,
     updateField,
+    updateWordPressStatus,
     submitForm,
     getEnrichedData
   };
