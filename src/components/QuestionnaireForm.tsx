@@ -108,13 +108,24 @@ const QuestionnaireForm: React.FC = () => {
       }, 300);
       return;
     }
+    
+    // Não avançar automaticamente se for "Outro(a)" na pergunta 1
+    if (field === 'area' && answer === 'Outro(a)') {
+      return;
+    }
+    
+    handleNext();
   };
 
   const handleNext = () => {
     if (currentStep < questions.length - 1) {
-      setCurrentStep(prev => prev + 1);
+      setTimeout(() => {
+        setCurrentStep(prev => prev + 1);
+      }, 300);
     } else {
-      setShowContactForm(true);
+      setTimeout(() => {
+        setShowContactForm(true);
+      }, 300);
     }
   };
 

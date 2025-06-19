@@ -48,7 +48,7 @@ const DisqualifiedScreen: React.FC<DisqualifiedScreenProps> = ({ reason }) => {
           
           <div className="bg-gradient-to-r from-automatik-purple to-automatik-turquoise p-6 rounded-xl mb-6">
             <h3 className="text-xl font-bold text-white mb-2">
-              E-book: Estratégias para Blogs de Sucesso
+              E-book: Aprovando o AdSense do Zero!
             </h3>
             <p className="text-white/90 text-sm mb-3">
               Descubra técnicas comprovadas para fazer seu blog decolar, independente da sua situação atual.
