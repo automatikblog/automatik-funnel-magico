@@ -97,7 +97,11 @@ export const useFormData = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const userAgent = navigator.userAgent;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    
+    // Capturar o cookie rtkclickid-store
     const clickid = getCookieValue('rtkclickid-store');
+    
+    console.log('Cookie rtkclickid-store capturado:', clickid);
     
     return {
       ...formData,

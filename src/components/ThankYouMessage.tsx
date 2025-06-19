@@ -12,7 +12,7 @@ const ThankYouMessage: React.FC = () => {
             Obrigado! 🎉
           </h1>
           <p className="text-xl text-gray-300 mb-6">
-            Seu questionário foi enviado com sucesso!
+            Já recebemos sua resposta!
           </p>
         </div>
 

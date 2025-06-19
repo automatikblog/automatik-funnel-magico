@@ -99,11 +99,6 @@ const WordPressDetector: React.FC<WordPressDetectorProps> = ({
       {(result.checked || result.isLoading || result.error) && (
         <div className={`text-sm ${getStatusColor()} animate-fade-in-up`}>
           {getStatusText()}
-          {result.checked && !result.isWordPress && (
-            <div className="mt-1 text-xs text-gray-400">
-              Sem problemas! Podemos ajudar com qualquer tipo de site.
-            </div>
-          )}
         </div>
       )}
     </div>

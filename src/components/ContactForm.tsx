@@ -10,7 +10,6 @@ interface ContactFormProps {
   updateWordPressStatus: (status: boolean) => void;
   onSubmit: () => void;
   onPrevious: () => void;
-  onDisqualify: (reason: string) => void;
   isWordPress: boolean;
   wordPressChecked: boolean;
 }
@@ -21,18 +20,11 @@ const ContactForm: React.FC<ContactFormProps> = ({
   updateWordPressStatus,
   onSubmit, 
   onPrevious,
-  onDisqualify,
   isWordPress,
   wordPressChecked
 }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!isWordPress && wordPressChecked) {
-      onDisqualify('wordpress');
-      return;
-    }
-    
     onSubmit();
   };
 

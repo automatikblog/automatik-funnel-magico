@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useFormData } from '../hooks/useFormData';
 import ProgressBar from './ProgressBar';
 import QuestionStep from './QuestionStep';
@@ -25,7 +26,7 @@ const questions = [
     title: 'Com que frequência você publica artigos ou conteúdos no seu site/blog?',
     options: [
       'Público com frequência (mais de 15/mês)',
-      'Publico de vez em quando (2 a 6/mês)',
+      'Publico de vez em quando (menos de 15/mês)',
       'Estou planejando começar',
       'Não publico, mas quero automatizar isso',
       'Não publico e não tenho planos'
@@ -70,6 +71,7 @@ const QuestionnaireForm: React.FC = () => {
   const [showContactForm, setShowContactForm] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
   const [showDisqualified, setShowDisqualified] = useState(false);
+  const [showAlreadySubmitted, setShowAlreadySubmitted] = useState(false);
   const [disqualificationReason, setDisqualificationReason] = useState('');
   const [isWordPress, setIsWordPress] = useState(false);
   const [wordPressChecked, setWordPressChecked] = useState(false);
@@ -78,11 +80,26 @@ const QuestionnaireForm: React.FC = () => {
 
   const totalSteps = questions.length + 1;
 
+  // Verificar se já preencheu hoje
+  useEffect(() => {
+    const lastSubmission = localStorage.getItem('automatik-form-submission');
+    if (lastSubmission) {
+      const submissionDate = new Date(lastSubmission);
+      const today = new Date();
+      
+      // Verificar se foi preenchido hoje
+      if (submissionDate.toDateString() === today.toDateString()) {
+        setShowAlreadySubmitted(true);
+        return;
+      }
+    }
+  }, []);
+
   const handleStart = () => {
     setShowWelcome(false);
   };
 
-  const checkForDisqualification = (field: string, answer: string) => {
+  const checkForQualification = () => {
     const disqualifyingAnswers = {
       frequencia: ['Não publico, mas quero automatizar isso', 'Não publico e não tenho planos', 'Estou planejando começar'],
       familiaridade: ['Não tenho interesse'],
@@ -90,24 +107,16 @@ const QuestionnaireForm: React.FC = () => {
       investimento: ['Não']
     };
 
-    if (disqualifyingAnswers[field as keyof typeof disqualifyingAnswers]?.includes(answer)) {
-      return field;
+    for (const [field, answers] of Object.entries(disqualifyingAnswers)) {
+      if (answers.includes(formData[field as keyof typeof formData])) {
+        return field;
+      }
     }
     return null;
   };
 
   const handleQuestionAnswer = (field: string, answer: string) => {
     updateField(field as keyof typeof formData, answer);
-    
-    // Verificar se a resposta desqualifica o lead
-    const disqualificationReason = checkForDisqualification(field, answer);
-    if (disqualificationReason) {
-      setDisqualificationReason(disqualificationReason);
-      setTimeout(() => {
-        setShowDisqualified(true);
-      }, 300);
-      return;
-    }
     
     // Não avançar automaticamente se for "Outro(a)" na pergunta 1
     if (field === 'area' && answer === 'Outro(a)') {
@@ -133,15 +142,29 @@ const QuestionnaireForm: React.FC = () => {
   };
 
   const handleContactSubmit = async () => {
+    // Verificar qualificação antes de enviar
+    const disqualificationReason = checkForQualification();
+    
+    // Verificar se não é WordPress
+    if (!isWordPress && wordPressChecked) {
+      setDisqualificationReason('wordpress');
+      setShowDisqualified(true);
+      return;
+    }
+    
+    // Se foi desqualificado por outras razões
+    if (disqualificationReason) {
+      setDisqualificationReason(disqualificationReason);
+      setShowDisqualified(true);
+      return;
+    }
+    
     const success = await submitForm();
     if (success) {
+      // Marcar como preenchido hoje
+      localStorage.setItem('automatik-form-submission', new Date().toISOString());
       setShowThankYou(true);
     }
-  };
-
-  const handleDisqualify = (reason: string) => {
-    setDisqualificationReason(reason);
-    setShowDisqualified(true);
   };
 
   const handleWordPressStatusUpdate = (status: boolean) => {
@@ -163,6 +186,10 @@ const QuestionnaireForm: React.FC = () => {
   const canAdvanceFromTextInput = () => {
     return formData.area === 'Outro(a)' && formData.areaOutra.trim().length > 0;
   };
+
+  if (showAlreadySubmitted) {
+    return <ThankYouMessage />;
+  }
 
   if (showWelcome) {
     return <WelcomeScreen onStart={handleStart} />;
@@ -187,7 +214,6 @@ const QuestionnaireForm: React.FC = () => {
             updateWordPressStatus={handleWordPressStatusUpdate}
             onSubmit={handleContactSubmit}
             onPrevious={handlePrevious}
-            onDisqualify={handleDisqualify}
             isWordPress={isWordPress}
             wordPressChecked={wordPressChecked}
           />
