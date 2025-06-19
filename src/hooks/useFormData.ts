@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 
 export interface FormData {
@@ -85,27 +84,9 @@ export const useFormData = () => {
   };
 
   const getCookieValue = (name: string): string | undefined => {
-    try {
-      // Método mais robusto para capturar cookies
-      const cookies = document.cookie.split(';');
-      for (let cookie of cookies) {
-        const [cookieName, cookieValue] = cookie.trim().split('=');
-        if (cookieName === name) {
-          return decodeURIComponent(cookieValue);
-        }
-      }
-      
-      // Método alternativo caso o primeiro não funcione
-      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-      if (match) {
-        return decodeURIComponent(match[2]);
-      }
-      
-      return undefined;
-    } catch (error) {
-      console.error('Erro ao capturar cookie:', error);
-      return undefined;
-    }
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    return (parts.length === 2) ? parts.pop()?.split(';').shift() : undefined;
   };
 
   const getEnrichedData = (): EnrichedData => {
