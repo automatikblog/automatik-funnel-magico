@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 
 export interface FormData {
@@ -86,7 +87,24 @@ export const useFormData = () => {
   const getCookieValue = (name: string): string | undefined => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-    return (parts.length === 2) ? parts.pop()?.split(';').shift() : undefined;
+    
+    console.log('=== DEBUG COOKIE CAPTURE ===');
+    console.log('Document.cookie completo:', document.cookie);
+    console.log('Procurando cookie:', name);
+    console.log('Value após processamento:', value);
+    console.log('Parts após split:', parts);
+    
+    if (parts.length === 2) {
+      const cookieValue = parts.pop()?.split(';').shift();
+      console.log('Cookie value encontrado:', cookieValue);
+      console.log('Tipo do cookie value:', typeof cookieValue);
+      console.log('Cookie value é vazio?', cookieValue === '');
+      console.log('Cookie value é undefined?', cookieValue === undefined);
+      return cookieValue || undefined;
+    }
+    
+    console.log('Cookie não encontrado - parts.length:', parts.length);
+    return undefined;
   };
 
   const getEnrichedData = (): EnrichedData => {
@@ -95,12 +113,13 @@ export const useFormData = () => {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
     
     // Capturar o cookie rtkclickid-store no momento do envio
+    console.log('=== CAPTURANDO CLICKID NO MOMENTO DO ENVIO ===');
     const clickid = getCookieValue('rtkclickid-store');
     
-    console.log('Todos os cookies disponíveis:', document.cookie);
-    console.log('Procurando por cookie rtkclickid-store...');
-    console.log('Cookie rtkclickid-store encontrado:', clickid);
+    console.log('Clickid capturado:', clickid);
     console.log('Tipo do clickid:', typeof clickid);
+    console.log('Clickid é undefined?', clickid === undefined);
+    console.log('Clickid é string vazia?', clickid === '');
     
     return {
       ...formData,
@@ -116,7 +135,7 @@ export const useFormData = () => {
       data_submissao: new Date().toISOString(),
       user_agent: userAgent,
       pais: 'Brasil',
-      clickid: clickid || undefined, // Garantir que seja undefined se não existir
+      clickid: clickid || undefined,
       form: 'lovableform',
       isWordPress: isWordPress,
       isQualified: isQualified()
@@ -128,8 +147,10 @@ export const useFormData = () => {
       // Capturar dados enriquecidos no momento exato do envio
       const enrichedData = getEnrichedData();
       
-      console.log('Dados completos sendo enviados para o webhook:', enrichedData);
-      console.log('Valor do clickid sendo enviado:', enrichedData.clickid);
+      console.log('=== DADOS SENDO ENVIADOS PARA WEBHOOK ===');
+      console.log('Dados completos:', enrichedData);
+      console.log('Clickid específico sendo enviado:', enrichedData.clickid);
+      console.log('Tipo do clickid no objeto final:', typeof enrichedData.clickid);
       
       const response = await fetch('https://webhooks.automatiklabs.com/webhook/cap-trial', {
         method: 'POST',
