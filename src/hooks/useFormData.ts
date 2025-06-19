@@ -28,6 +28,8 @@ export interface EnrichedData extends FormData {
   data_submissao: string;
   ip?: string;
   user_agent: string;
+  clickid?: string;
+  form: string;
 }
 
 export const useFormData = () => {
@@ -49,10 +51,20 @@ export const useFormData = () => {
     }));
   };
 
+  const getCookieValue = (name: string): string | undefined => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      return parts.pop()?.split(';').shift();
+    }
+    return undefined;
+  };
+
   const getEnrichedData = (): EnrichedData => {
     const urlParams = new URLSearchParams(window.location.search);
     const userAgent = navigator.userAgent;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    const clickid = getCookieValue('rtkclickid-store');
     
     return {
       ...formData,
@@ -67,7 +79,9 @@ export const useFormData = () => {
       url_pagina: window.location.href,
       data_submissao: new Date().toISOString(),
       user_agent: userAgent,
-      pais: 'Brasil'
+      pais: 'Brasil',
+      clickid: clickid,
+      form: 'lovableform'
     };
   };
 

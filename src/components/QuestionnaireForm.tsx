@@ -5,6 +5,7 @@ import ProgressBar from './ProgressBar';
 import QuestionStep from './QuestionStep';
 import ContactForm from './ContactForm';
 import ThankYouMessage from './ThankYouMessage';
+import WelcomeScreen from './WelcomeScreen';
 
 const questions = [
   {
@@ -55,12 +56,17 @@ const questions = [
 ];
 
 const QuestionnaireForm: React.FC = () => {
+  const [showWelcome, setShowWelcome] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const [showContactForm, setShowContactForm] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
   const { formData, updateField, submitForm } = useFormData();
 
   const totalSteps = questions.length + 1; // +1 para o formulário de contato
+
+  const handleStart = () => {
+    setShowWelcome(false);
+  };
 
   const handleQuestionAnswer = (field: string, answer: string) => {
     updateField(field as keyof typeof formData, answer);
@@ -92,6 +98,10 @@ const QuestionnaireForm: React.FC = () => {
       setCurrentStep(prev => prev - 1);
     }
   };
+
+  if (showWelcome) {
+    return <WelcomeScreen onStart={handleStart} />;
+  }
 
   if (showThankYou) {
     return <ThankYouMessage />;
