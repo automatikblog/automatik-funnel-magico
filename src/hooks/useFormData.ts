@@ -98,10 +98,11 @@ export const useFormData = () => {
     const userAgent = navigator.userAgent;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
     
-    // Capturar o cookie rtkclickid-store
+    // Capturar o cookie rtkclickid-store no momento do envio
     const clickid = getCookieValue('rtkclickid-store');
     
-    console.log('Cookie rtkclickid-store capturado:', clickid);
+    console.log('Todos os cookies disponíveis:', document.cookie);
+    console.log('Cookie rtkclickid-store capturado no envio:', clickid);
     
     return {
       ...formData,
@@ -126,9 +127,11 @@ export const useFormData = () => {
 
   const submitForm = async (): Promise<boolean> => {
     try {
+      // Capturar dados enriquecidos no momento exato do envio
       const enrichedData = getEnrichedData();
       
-      console.log('Enviando dados:', enrichedData);
+      console.log('Dados completos sendo enviados para o webhook:', enrichedData);
+      console.log('Valor do clickid sendo enviado:', enrichedData.clickid);
       
       const response = await fetch('https://webhooks.automatiklabs.com/webhook/cap-trial', {
         method: 'POST',
