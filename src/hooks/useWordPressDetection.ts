@@ -1,4 +1,5 @@
 
+
 import { useState, useCallback } from 'react';
 
 export interface WordPressDetectionResult {
@@ -88,7 +89,7 @@ export const useWordPressDetection = () => {
       }
 
       // Fallback: Verificar apenas pela URL
-      const urlBasedDetection = /wordpress|wp-|/wp/i.test(normalizedUrl);
+      const urlBasedDetection = /wordpress|wp-|\/wp\//i.test(normalizedUrl);
       const result = { isWordPress: urlBasedDetection, isLoading: false, error: null, checked: true };
       setResults(prev => ({ ...prev, [url]: result }));
       return result;
@@ -111,3 +112,4 @@ export const useWordPressDetection = () => {
 
   return { detectWordPress, getResult };
 };
+
