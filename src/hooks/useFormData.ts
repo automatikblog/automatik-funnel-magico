@@ -85,12 +85,27 @@ export const useFormData = () => {
   };
 
   const getCookieValue = (name: string): string | undefined => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) {
-      return parts.pop()?.split(';').shift();
+    try {
+      // Método mais robusto para capturar cookies
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        const [cookieName, cookieValue] = cookie.trim().split('=');
+        if (cookieName === name) {
+          return decodeURIComponent(cookieValue);
+        }
+      }
+      
+      // Método alternativo caso o primeiro não funcione
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      if (match) {
+        return decodeURIComponent(match[2]);
+      }
+      
+      return undefined;
+    } catch (error) {
+      console.error('Erro ao capturar cookie:', error);
+      return undefined;
     }
-    return undefined;
   };
 
   const getEnrichedData = (): EnrichedData => {
@@ -102,7 +117,9 @@ export const useFormData = () => {
     const clickid = getCookieValue('rtkclickid-store');
     
     console.log('Todos os cookies disponíveis:', document.cookie);
-    console.log('Cookie rtkclickid-store capturado no envio:', clickid);
+    console.log('Procurando por cookie rtkclickid-store...');
+    console.log('Cookie rtkclickid-store encontrado:', clickid);
+    console.log('Tipo do clickid:', typeof clickid);
     
     return {
       ...formData,
@@ -118,7 +135,7 @@ export const useFormData = () => {
       data_submissao: new Date().toISOString(),
       user_agent: userAgent,
       pais: 'Brasil',
-      clickid: clickid,
+      clickid: clickid || undefined, // Garantir que seja undefined se não existir
       form: 'lovableform',
       isWordPress: isWordPress,
       isQualified: isQualified()
