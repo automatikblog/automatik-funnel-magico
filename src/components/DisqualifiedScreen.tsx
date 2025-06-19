@@ -43,16 +43,20 @@ const DisqualifiedScreen: React.FC<DisqualifiedScreenProps> = ({ reason }) => {
           </h2>
           <p className="text-gray-300 mb-6">
             Mesmo que nossa ferramenta não seja ideal para seu momento atual, queremos te ajudar a crescer. 
-            Baixe nosso e-book gratuito com estratégias comprovadas para blogs.
+            Conheça nosso e-book com estratégias comprovadas para blogs.
           </p>
           
           <div className="bg-gradient-to-r from-automatik-purple to-automatik-turquoise p-6 rounded-xl mb-6">
             <h3 className="text-xl font-bold text-white mb-2">
-              E-book Gratuito: Estratégias para Blogs de Sucesso
+              E-book: Estratégias para Blogs de Sucesso
             </h3>
-            <p className="text-white/90 text-sm">
+            <p className="text-white/90 text-sm mb-3">
               Descubra técnicas comprovadas para fazer seu blog decolar, independente da sua situação atual.
             </p>
+            <div className="flex items-center justify-center space-x-4 text-white">
+              <span className="text-lg font-bold">R$ 47,00</span>
+              <span className="text-sm bg-white/20 px-2 py-1 rounded">7 dias de garantia</span>
+            </div>
           </div>
 
           <a 
@@ -62,7 +66,7 @@ const DisqualifiedScreen: React.FC<DisqualifiedScreenProps> = ({ reason }) => {
             className="inline-flex items-center px-8 py-4 bg-automatik-purple text-white font-semibold rounded-xl hover:bg-automatik-purple/90 hover:scale-105 transition-all duration-300 text-lg"
           >
             <BookOpen className="w-5 h-5 mr-2" />
-            Baixar E-book Gratuito
+            Adquirir E-book
             <ExternalLink className="w-4 h-4 ml-2" />
           </a>
         </div>

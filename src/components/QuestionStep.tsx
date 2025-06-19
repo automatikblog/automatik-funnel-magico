@@ -51,12 +51,8 @@ const QuestionStep: React.FC<QuestionStepProps> = ({
       return;
     }
     
-    // Para outras perguntas, avançar automaticamente após um delay
-    if (onNext) {
-      setTimeout(() => {
-        onNext();
-      }, 300);
-    }
+    // Para outras perguntas, não avançar automaticamente
+    // O avanço será controlado pelo componente pai
   };
 
   return (
@@ -129,6 +125,16 @@ const QuestionStep: React.FC<QuestionStepProps> = ({
               </button>
             )}
           </div>
+        )}
+
+        {selectedAnswer && !showTextInput && onNext && (
+          <button
+            onClick={onNext}
+            className="mt-6 flex items-center px-6 py-3 bg-automatik-turquoise text-automatik-dark font-semibold rounded-xl hover:bg-automatik-turquoise/90 transition-all"
+          >
+            Continuar
+            <ArrowRight className="w-5 h-5 ml-2" />
+          </button>
         )}
       </div>
     </div>
