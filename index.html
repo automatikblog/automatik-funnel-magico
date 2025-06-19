@@ -17,184 +17,216 @@
     <meta name="twitter:site" content="@automatikblog" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
-    <!-- Google Fonts -->
+    <!-- Preload de recursos críticos -->
+    <link rel="preload" href="/lovable-uploads/158f3d19-0606-4909-b100-63556f6d82b4.png" as="image" type="image/png">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- Google Fonts com display swap para performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
 
-    <!-- Automatik Blog Tracking Script -->
-    <script src="https://track.automatikblog.com/uniclick.js?attribution=lastpaid&cookiedomain=automatikblog.com&cookieduration=90&defaultcampaignid=683f45642498fc6fe758357f&regviewonce=false"></script>
+    <!-- Automatik Blog Tracking Script com defer -->
+    <script defer src="https://track.automatikblog.com/uniclick.js?attribution=lastpaid&cookiedomain=automatikblog.com&cookieduration=90&defaultcampaignid=683f45642498fc6fe758357f&regviewonce=false"></script>
   </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 
-    <!-- Script de rastreio 4.0 by Comunidade Nova Ordem do Digital -->
-    <script>
+    <!-- Script de rastreio 4.0 by Comunidade Nova Ordem do Digital com defer -->
+    <script defer>
 console.log('%cScript de rastreio 4.0 by Comunidade Nova Ordem do Digital - Dericson Calari e Samuel Choairy', 'color: yellow; font-size: 20px;');
 
 (function () {
-    // Função para obter o valor de um parâmetro da URL
-    function getParameterByName(name, url) {
-        if (!url) url = window.location.href;
-        name = name.replace(/[\[\]]/g, "\\$&");
-        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-            results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    // Aguardar o DOM estar completamente carregado
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTracking);
+    } else {
+        initTracking();
     }
-
-    // Função para definir um cookie
-    function setCookie(cookieName, cookieValue, expirationTime) {
-        var cookiePath = "/";
-        expirationTime = expirationTime * 1000; // Converter tempo de expiração para milissegundos
-        var date = new Date();
-        var dateTimeNow = date.getTime();
-        date.setTime(dateTimeNow + expirationTime);
-        var expirationDate = date.toUTCString();
-        document.cookie = cookieName + "=" + cookieValue + "; expires=" + expirationDate + "; path=" + cookiePath;
-    }
-
-    // Função para obter o valor de um cookie pelo nome
-    function getCookieValue(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-        return null;
-    }
-
-    // Vetor de parâmetros que indicam origem de anúncios
-    const adParams = ['fbclid', 'gclid'];
-
-    // Verificar se algum dos parâmetros de anúncio está presente na URL
-    const urlParams = new URLSearchParams(window.location.search);
-    let isAdClick = false;
-    adParams.forEach(param => {
-        if (urlParams.has(param)) {
-            isAdClick = true;
+    
+    function initTracking() {
+        // Função para obter o valor de um parâmetro da URL
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
         }
-    });
 
-    // Criar cookies para UTMs se o clique for proveniente de anúncio
-    if (isAdClick) {
-        const utmSource = getParameterByName('utm_source');
-        const utmMedium = getParameterByName('utm_medium');
-        const utmCampaign = getParameterByName('utm_campaign');
-        const utmContent = getParameterByName('utm_content');
-        const utmTerm = getParameterByName('utm_term');
-
-        if (utmSource) setCookie('cookieUtmSource', utmSource, 63072000);
-        if (utmMedium) setCookie('cookieUtmMedium', utmMedium, 63072000);
-        if (utmCampaign) setCookie('cookieUtmCampaign', utmCampaign, 63072000);
-        if (utmContent) setCookie('cookieUtmContent', utmContent, 63072000);
-        if (utmTerm) setCookie('cookieUtmTerm', utmTerm, 63072000);
-    }
-
-    // Coletar valores das UTMs e cookies para manipulação dos links
-    let parametros = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
-    const urlParamsCapt = new URLSearchParams(window.location.search);
-    const urlParamsCaptReferrer = new URLSearchParams(document.referrer.split('?')[1] || '');
-    let utms = {};
-
-    // Obter valores dos cookies UTM, se existirem
-    const cookieUtmSource = getCookieValue('cookieUtmSource');
-    const cookieUtmMedium = getCookieValue('cookieUtmMedium');
-    const cookieUtmCampaign = getCookieValue('cookieUtmCampaign');
-    const cookieUtmContent = getCookieValue('cookieUtmContent');
-    const cookieUtmTerm = getCookieValue('cookieUtmTerm');
-
-    parametros.forEach(el => {
-        if (el === "utm_source") {
-            utms[el] = urlParamsCapt.get(el) ?? (document.referrer ? (urlParamsCaptReferrer.get(el) ?? new URL(document.referrer).hostname) : "direto");
-        } else {
-            utms[el] = urlParamsCapt.get(el) ?? (urlParamsCaptReferrer.get(el) ?? "");
+        // Função para definir um cookie
+        function setCookie(cookieName, cookieValue, expirationTime) {
+            var cookiePath = "/";
+            expirationTime = expirationTime * 1000; // Converter tempo de expiração para milissegundos
+            var date = new Date();
+            var dateTimeNow = date.getTime();
+            date.setTime(dateTimeNow + expirationTime);
+            var expirationDate = date.toUTCString();
+            document.cookie = cookieName + "=" + cookieValue + "; expires=" + expirationDate + "; path=" + cookiePath;
         }
-    });
 
-    let scks = Object.values(utms).filter(value => value !== "");
+        // Função para obter o valor de um cookie pelo nome
+        function getCookieValue(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
 
-    let currentSckValues = [];
-    if (urlParamsCapt.get('sck')) {
-        currentSckValues = urlParamsCapt.get('sck').split('|');
-    }
-    scks = scks.filter(value => !currentSckValues.includes(value));
+        // Vetor de parâmetros que indicam origem de anúncios
+        const adParams = ['fbclid', 'gclid'];
 
-    let srcValues = [cookieUtmSource, cookieUtmMedium, cookieUtmCampaign, cookieUtmContent, cookieUtmTerm].filter(value => value !== null && value !== "");
-
-    const updateLinks = (el, elURL) => {
-        const elSearchParams = new URLSearchParams(elURL.search);
-        let modified = false;
-
-        // Preservar todos os parâmetros existentes da URL original
-        urlParams.forEach((value, key) => {
-            if (!elSearchParams.has(key)) {
-                elSearchParams.append(key, value);
-                modified = true;
+        // Verificar se algum dos parâmetros de anúncio está presente na URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let isAdClick = false;
+        adParams.forEach(param => {
+            if (urlParams.has(param)) {
+                isAdClick = true;
             }
         });
 
-        // Adicionar valores das UTMs coletadas ou do referrer
-        for (let key in utms) {
-            if (!elSearchParams.has(key)) {
-                elSearchParams.append(key, utms[key]);
+        // Criar cookies para UTMs se o clique for proveniente de anúncio
+        if (isAdClick) {
+            const utmSource = getParameterByName('utm_source');
+            const utmMedium = getParameterByName('utm_medium');
+            const utmCampaign = getParameterByName('utm_campaign');
+            const utmContent = getParameterByName('utm_content');
+            const utmTerm = getParameterByName('utm_term');
+
+            if (utmSource) setCookie('cookieUtmSource', utmSource, 63072000);
+            if (utmMedium) setCookie('cookieUtmMedium', utmMedium, 63072000);
+            if (utmCampaign) setCookie('cookieUtmCampaign', utmCampaign, 63072000);
+            if (utmContent) setCookie('cookieUtmContent', utmContent, 63072000);
+            if (utmTerm) setCookie('cookieUtmTerm', utmTerm, 63072000);
+        }
+
+        // Coletar valores das UTMs e cookies para manipulação dos links
+        let parametros = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
+        const urlParamsCapt = new URLSearchParams(window.location.search);
+        const urlParamsCaptReferrer = new URLSearchParams(document.referrer.split('?')[1] || '');
+        let utms = {};
+
+        // Obter valores dos cookies UTM, se existirem
+        const cookieUtmSource = getCookieValue('cookieUtmSource');
+        const cookieUtmMedium = getCookieValue('cookieUtmMedium');
+        const cookieUtmCampaign = getCookieValue('cookieUtmCampaign');
+        const cookieUtmContent = getCookieValue('cookieUtmContent');
+        const cookieUtmTerm = getCookieValue('cookieUtmTerm');
+
+        parametros.forEach(el => {
+            if (el === "utm_source") {
+                utms[el] = urlParamsCapt.get(el) ?? (document.referrer ? (urlParamsCaptReferrer.get(el) ?? new URL(document.referrer).hostname) : "direto");
+            } else {
+                utms[el] = urlParamsCapt.get(el) ?? (urlParamsCaptReferrer.get(el) ?? "");
+            }
+        });
+
+        let scks = Object.values(utms).filter(value => value !== "");
+
+        let currentSckValues = [];
+        if (urlParamsCapt.get('sck')) {
+            currentSckValues = urlParamsCapt.get('sck').split('|');
+        }
+        scks = scks.filter(value => !currentSckValues.includes(value));
+
+        let srcValues = [cookieUtmSource, cookieUtmMedium, cookieUtmCampaign, cookieUtmContent, cookieUtmTerm].filter(value => value !== null && value !== "");
+
+        const updateLinks = (el, elURL) => {
+            const elSearchParams = new URLSearchParams(elURL.search);
+            let modified = false;
+
+            // Preservar todos os parâmetros existentes da URL original
+            urlParams.forEach((value, key) => {
+                if (!elSearchParams.has(key)) {
+                    elSearchParams.append(key, value);
+                    modified = true;
+                }
+            });
+
+            // Adicionar valores das UTMs coletadas ou do referrer
+            for (let key in utms) {
+                if (!elSearchParams.has(key)) {
+                    elSearchParams.append(key, utms[key]);
+                    modified = true;
+                }
+            }
+
+            // Adicionar valores dos cookies UTM na URL, se existirem
+            if (cookieUtmSource) elSearchParams.append('cookieUtmSource', cookieUtmSource);
+            if (cookieUtmMedium) elSearchParams.append('cookieUtmMedium', cookieUtmMedium);
+            if (cookieUtmCampaign) elSearchParams.append('cookieUtmCampaign', cookieUtmCampaign);
+            if (cookieUtmContent) elSearchParams.append('cookieUtmContent', cookieUtmContent);
+            if (cookieUtmTerm) elSearchParams.append('cookieUtmTerm', cookieUtmTerm);
+
+            // Adicionar o parâmetro sck
+            if (!elSearchParams.has('sck') && scks.length > 0) {
+                elSearchParams.append('sck', scks.join('|'));
                 modified = true;
             }
-        }
 
-        // Adicionar valores dos cookies UTM na URL, se existirem
-        if (cookieUtmSource) elSearchParams.append('cookieUtmSource', cookieUtmSource);
-        if (cookieUtmMedium) elSearchParams.append('cookieUtmMedium', cookieUtmMedium);
-        if (cookieUtmCampaign) elSearchParams.append('cookieUtmCampaign', cookieUtmCampaign);
-        if (cookieUtmContent) elSearchParams.append('cookieUtmContent', cookieUtmContent);
-        if (cookieUtmTerm) elSearchParams.append('cookieUtmTerm', cookieUtmTerm);
-
-        // Adicionar o parâmetro sck
-        if (!elSearchParams.has('sck') && scks.length > 0) {
-            elSearchParams.append('sck', scks.join('|'));
-            modified = true;
-        }
-
-        // Adicionar o parâmetro src
-        if (!elSearchParams.has('src') && srcValues.length > 0) {
-            elSearchParams.append('src', srcValues.join('|'));
-            modified = true;
-        }
-
-        if (modified) {
-            return elURL.origin + elURL.pathname + "?" + elSearchParams.toString();
-        }
-        return el.href;
-    };
-
-    document.querySelectorAll('a').forEach(el => {
-        try {
-            const elURL = new URL(el.href, window.location.origin); // Base para URLs relativas
-            if (!elURL.hash) {
-                el.href = updateLinks(el, elURL);
+            // Adicionar o parâmetro src
+            if (!elSearchParams.has('src') && srcValues.length > 0) {
+                elSearchParams.append('src', srcValues.join('|'));
+                modified = true;
             }
-        } catch (e) {
-            console.warn('Erro ao processar URL no link:', el.href);
-        }
-    });
 
-    document.querySelectorAll('iframe').forEach(iframe => {
-        let actualSrc = iframe.hasAttribute('data-src') ? iframe.getAttribute('data-src') : iframe.src;
-        if (actualSrc) {
-            try {
-                const iframeURL = new URL(actualSrc, window.location.origin); // Base para URLs relativas
-                if (iframe.hasAttribute('data-src')) {
-                    iframe.setAttribute('data-src', updateLinks(iframe, iframeURL));
-                } else {
-                    iframe.src = updateLinks(iframe, iframeURL);
+            if (modified) {
+                return elURL.origin + elURL.pathname + "?" + elSearchParams.toString();
+            }
+            return el.href;
+        };
+
+        // Usar requestIdleCallback para não bloquear a renderização
+        function processLinks() {
+            const links = document.querySelectorAll('a');
+            links.forEach(el => {
+                try {
+                    const elURL = new URL(el.href, window.location.origin);
+                    if (!elURL.hash) {
+                        el.href = updateLinks(el, elURL);
+                    }
+                } catch (e) {
+                    console.warn('Erro ao processar URL no link:', el.href);
                 }
-            } catch (e) {
-                console.warn('Erro ao processar URL no iframe:', actualSrc);
-            }
+            });
         }
-    });
 
+        function processIframes() {
+            const iframes = document.querySelectorAll('iframe');
+            iframes.forEach(iframe => {
+                let actualSrc = iframe.hasAttribute('data-src') ? iframe.getAttribute('data-src') : iframe.src;
+                if (actualSrc) {
+                    try {
+                        const iframeURL = new URL(actualSrc, window.location.origin);
+                        if (iframe.hasAttribute('data-src')) {
+                            iframe.setAttribute('data-src', updateLinks(iframe, iframeURL));
+                        } else {
+                            iframe.src = updateLinks(iframe, iframeURL);
+                        }
+                    } catch (e) {
+                        console.warn('Erro ao processar URL no iframe:', actualSrc);
+                    }
+                }
+            });
+        }
+
+        // Usar requestIdleCallback se disponível, senão setTimeout
+        if (window.requestIdleCallback) {
+            requestIdleCallback(() => {
+                processLinks();
+                processIframes();
+            });
+        } else {
+            setTimeout(() => {
+                processLinks();
+                processIframes();
+            }, 100);
+        }
+    }
 })();
     </script>
   </body>

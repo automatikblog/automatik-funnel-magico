@@ -1,12 +1,21 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useFormData } from '../hooks/useFormData';
 import ProgressBar from './ProgressBar';
 import QuestionStep from './QuestionStep';
-import ContactForm from './ContactForm';
-import ThankYouMessage from './ThankYouMessage';
 import WelcomeScreen from './WelcomeScreen';
-import DisqualifiedScreen from './DisqualifiedScreen';
+
+// Lazy load components que não são críticos para o primeiro carregamento
+const ContactForm = lazy(() => import('./ContactForm'));
+const ThankYouMessage = lazy(() => import('./ThankYouMessage'));
+const DisqualifiedScreen = lazy(() => import('./DisqualifiedScreen'));
+
+// Loading component simples e leve
+const LoadingSpinner = () => (
+  <div className="min-h-screen bg-automatik-dark flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-automatik-turquoise border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 const questions = [
   {
@@ -188,7 +197,11 @@ const QuestionnaireForm: React.FC = () => {
   };
 
   if (showAlreadySubmitted) {
-    return <ThankYouMessage />;
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <ThankYouMessage />
+      </Suspense>
+    );
   }
 
   if (showWelcome) {
@@ -196,11 +209,19 @@ const QuestionnaireForm: React.FC = () => {
   }
 
   if (showDisqualified) {
-    return <DisqualifiedScreen reason={disqualificationReason} />;
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <DisqualifiedScreen reason={disqualificationReason} />
+      </Suspense>
+    );
   }
 
   if (showThankYou) {
-    return <ThankYouMessage />;
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <ThankYouMessage />
+      </Suspense>
+    );
   }
 
   if (showContactForm) {
@@ -208,15 +229,17 @@ const QuestionnaireForm: React.FC = () => {
       <div className="min-h-screen bg-automatik-dark flex items-center justify-center p-4">
         <div className="w-full max-w-2xl">
           <ProgressBar currentStep={totalSteps} totalSteps={totalSteps} />
-          <ContactForm 
-            formData={formData}
-            updateField={updateField}
-            updateWordPressStatus={handleWordPressStatusUpdate}
-            onSubmit={handleContactSubmit}
-            onPrevious={handlePrevious}
-            isWordPress={isWordPress}
-            wordPressChecked={wordPressChecked}
-          />
+          <Suspense fallback={<LoadingSpinner />}>
+            <ContactForm 
+              formData={formData}
+              updateField={updateField}
+              updateWordPressStatus={handleWordPressStatusUpdate}
+              onSubmit={handleContactSubmit}
+              onPrevious={handlePrevious}
+              isWordPress={isWordPress}
+              wordPressChecked={wordPressChecked}
+            />
+          </Suspense>
         </div>
       </div>
     );
