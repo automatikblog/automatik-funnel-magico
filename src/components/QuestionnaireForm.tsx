@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useFormData } from '../hooks/useFormData';
 import ProgressBar from './ProgressBar';
@@ -31,13 +32,13 @@ const questions = [
   },
   {
     id: 'frequencia',
-    title: 'Com que frequência você publica artigos ou conteúdos no seu site/blog?',
+    title: 'Com que frequência você (ou sua empresa) publica artigos — no seu blog ou nos dos seus clientes?',
     options: [
-      'Público com frequência (mais de 15/mês)',
-      'Publico de vez em quando (menos de 15/mês)',
-      'Estou planejando começar',
-      'Não publico, mas quero automatizar isso',
-      'Não publico e não tenho planos'
+      'Publicamos com frequência (15 ou mais por mês)',
+      'Publicamos de vez em quando (até 14 por mês)',
+      'Já publicamos, mas queremos escalar a produção',
+      'Ainda não publicamos, mas queremos começar',
+      'Não publicamos e não temos planos'
     ]
   },
   {
@@ -108,7 +109,7 @@ const QuestionnaireForm: React.FC = () => {
 
   const checkForQualification = () => {
     const disqualifyingAnswers = {
-      frequencia: ['Não publico, mas quero automatizar isso', 'Não publico e não tenho planos', 'Estou planejando começar'],
+      frequencia: ['Ainda não publicamos, mas queremos começar', 'Não publicamos e não temos planos'],
       familiaridade: ['Não tenho interesse'],
       papel: ['Está parado / sem uso no momento', 'Ainda não tenho blog, mas pretendo começar', 'Ainda não tenho retorno, mas quero transformar isso'],
       investimento: ['Não']

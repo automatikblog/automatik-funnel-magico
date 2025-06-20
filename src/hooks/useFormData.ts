@@ -73,6 +73,8 @@ export const useFormData = () => {
       'Está parado / sem uso no momento',
       'Ainda não tenho blog, mas pretendo começar',
       'Ainda não tenho retorno, mas quero transformar isso',
+      'Ainda não publicamos, mas queremos começar',
+      'Não publicamos e não temos planos',
       'Não'
     ];
 
