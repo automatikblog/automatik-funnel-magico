@@ -132,27 +132,35 @@ const QuestionnaireForm: React.FC = () => {
     return null;
   };
 
-  const shouldSkipQuantidadeBlogsQuestion = () => {
-    return formData.papel === 'Ainda não tenho blog, mas pretendo começar';
+  const shouldSkipQuantidadeBlogsQuestion = (currentPapelValue: string) => {
+    console.log('Verificando se deve pular pergunta de quantidade de blogs:', currentPapelValue);
+    return currentPapelValue === 'Ainda não tenho blog, mas pretendo começar';
   };
 
-  const getNextStep = (currentIndex: number) => {
+  const getNextStep = (currentIndex: number, currentAnswer?: string) => {
+    console.log('getNextStep chamado:', { currentIndex, currentAnswer, currentPapel: formData.papel });
+    
     // Se estamos na pergunta do papel (índice 3) e a resposta foi "Ainda não tenho blog"
-    if (currentIndex === 3 && shouldSkipQuantidadeBlogsQuestion()) {
-      return 5; // Pular para a pergunta do investimento (índice 5)
+    if (currentIndex === 3) {
+      const papelValue = currentAnswer || formData.papel;
+      if (shouldSkipQuantidadeBlogsQuestion(papelValue)) {
+        console.log('Pulando pergunta de quantidade de blogs');
+        return 5; // Pular para a pergunta do investimento (índice 5)
+      }
     }
     return currentIndex + 1;
   };
 
   const getPreviousStep = (currentIndex: number) => {
     // Se estamos na pergunta do investimento (índice 5) e devemos pular quantidade de blogs
-    if (currentIndex === 5 && shouldSkipQuantidadeBlogsQuestion()) {
+    if (currentIndex === 5 && shouldSkipQuantidadeBlogsQuestion(formData.papel)) {
       return 3; // Voltar para a pergunta do papel (índice 3)
     }
     return currentIndex - 1;
   };
 
   const handleQuestionAnswer = (field: string, answer: string) => {
+    console.log('Resposta selecionada:', { field, answer });
     updateField(field as keyof typeof formData, answer);
     
     // Não avançar automaticamente se for "Outro(a)" na pergunta 1
@@ -162,12 +170,13 @@ const QuestionnaireForm: React.FC = () => {
     
     // Para outras perguntas, avançar automaticamente após um delay
     setTimeout(() => {
-      handleNext();
+      handleNext(field === 'papel' ? answer : undefined);
     }, 300);
   };
 
-  const handleNext = () => {
-    const nextStep = getNextStep(currentStep);
+  const handleNext = (currentAnswer?: string) => {
+    const nextStep = getNextStep(currentStep, currentAnswer);
+    console.log('Próximo passo calculado:', nextStep);
     
     if (nextStep < questions.length) {
       setCurrentStep(nextStep);
