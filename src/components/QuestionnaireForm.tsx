@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useFormData } from '../hooks/useFormData';
 import ProgressBar from './ProgressBar';
@@ -97,9 +98,11 @@ const QuestionnaireForm: React.FC = () => {
 
   const totalSteps = questions.length + 1;
 
-  // Verificar se já preencheu na última semana
+  // Verificar se já preencheu na última semana ou foi desqualificado
   useEffect(() => {
     const lastSubmission = localStorage.getItem('automatik-form-submission');
+    const disqualificationData = localStorage.getItem('automatik-disqualification');
+    
     if (lastSubmission) {
       const submissionDate = new Date(lastSubmission);
       const today = new Date();
@@ -107,8 +110,20 @@ const QuestionnaireForm: React.FC = () => {
       
       // Verificar se foi preenchido na última semana
       if (submissionDate > oneWeekAgo) {
-        setShowAlreadySubmitted(true);
+        // Se foi desqualificado, mostrar tela de desqualificação
+        if (disqualificationData) {
+          const disqualificationInfo = JSON.parse(disqualificationData);
+          setDisqualificationReason(disqualificationInfo.reason);
+          setShowDisqualified(true);
+        } else {
+          // Se foi qualificado, mostrar tela de obrigado
+          setShowAlreadySubmitted(true);
+        }
         return;
+      } else {
+        // Se passou mais de uma semana, limpar os dados
+        localStorage.removeItem('automatik-form-submission');
+        localStorage.removeItem('automatik-disqualification');
       }
     }
   }, []);
@@ -151,8 +166,12 @@ const QuestionnaireForm: React.FC = () => {
       const papelValue = currentAnswer || formData.papel;
       if (shouldGoDirectToEbook(papelValue)) {
         console.log('Indo direto para e-book');
-        // Marcar submissão e ir para e-book
+        // Marcar submissão e desqualificação
         localStorage.setItem('automatik-form-submission', new Date().toISOString());
+        localStorage.setItem('automatik-disqualification', JSON.stringify({
+          reason: 'papel',
+          date: new Date().toISOString()
+        }));
         setDisqualificationReason('papel');
         setShowDisqualified(true);
         return currentIndex; // Não avançar passo
@@ -214,6 +233,11 @@ const QuestionnaireForm: React.FC = () => {
     
     // Verificar se não é WordPress
     if (!isWordPress && wordPressChecked) {
+      localStorage.setItem('automatik-form-submission', new Date().toISOString());
+      localStorage.setItem('automatik-disqualification', JSON.stringify({
+        reason: 'wordpress',
+        date: new Date().toISOString()
+      }));
       setDisqualificationReason('wordpress');
       setShowDisqualified(true);
       return;
@@ -221,6 +245,11 @@ const QuestionnaireForm: React.FC = () => {
     
     // Se foi desqualificado por outras razões
     if (disqualificationReason) {
+      localStorage.setItem('automatik-form-submission', new Date().toISOString());
+      localStorage.setItem('automatik-disqualification', JSON.stringify({
+        reason: disqualificationReason,
+        date: new Date().toISOString()
+      }));
       setDisqualificationReason(disqualificationReason);
       setShowDisqualified(true);
       return;
@@ -228,7 +257,7 @@ const QuestionnaireForm: React.FC = () => {
     
     const success = await submitForm();
     if (success) {
-      // Marcar como preenchido hoje
+      // Marcar como preenchido - qualificado (sem desqualificação)
       localStorage.setItem('automatik-form-submission', new Date().toISOString());
       setShowThankYou(true);
     }

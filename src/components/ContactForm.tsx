@@ -106,7 +106,8 @@ const ContactForm: React.FC<ContactFormProps> = ({
             onWordPressDetected={updateWordPressStatus}
           />
           
-          {isBlocked && (
+          {/* Só mostrar mensagem de erro se foi verificado E não é WordPress */}
+          {wordPressChecked && !isWordPress && (
             <div className="mt-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
               <div className="flex items-start space-x-3">
                 <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
