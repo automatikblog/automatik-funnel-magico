@@ -28,9 +28,13 @@ const ContactForm: React.FC<ContactFormProps> = ({
     onSubmit();
   };
 
-  // Só permite submissão se todos os campos estão preenchidos E o blog foi verificado
-  const isFormValid = formData.nome && formData.email && formData.telefone && formData.blogLink && wordPressChecked;
-  const isBlocked = wordPressChecked && !isWordPress;
+  // Validação mais clara: todos os campos preenchidos + WordPress detectado
+  const areFieldsFilled = formData.nome && formData.email && formData.telefone && formData.blogLink;
+  const isWordPressValid = wordPressChecked && isWordPress;
+  const isFormValid = areFieldsFilled && isWordPressValid;
+  
+  // Mostrar erro apenas se foi verificado e NÃO é WordPress
+  const shouldShowError = wordPressChecked && !isWordPress;
 
   return (
     <div className="animate-fade-in-up">
@@ -107,7 +111,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
           />
           
           {/* Só mostrar mensagem de erro se foi verificado E não é WordPress */}
-          {wordPressChecked && !isWordPress && (
+          {shouldShowError && (
             <div className="mt-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
               <div className="flex items-start space-x-3">
                 <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
@@ -125,15 +129,16 @@ const ContactForm: React.FC<ContactFormProps> = ({
 
         <button
           type="submit"
-          disabled={!isFormValid || isBlocked}
+          disabled={!isFormValid}
           className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all ${
-            isFormValid && !isBlocked
+            isFormValid
               ? 'bg-automatik-turquoise text-automatik-dark hover:bg-automatik-turquoise/90 transform hover:scale-[1.02]'
               : 'bg-gray-600 text-gray-400 cursor-not-allowed'
           }`}
         >
-          {isBlocked ? 'Site não compatível' : 
-           !wordPressChecked ? 'Verificando blog...' : 
+          {!wordPressChecked ? 'Verificando blog...' : 
+           shouldShowError ? 'Site não compatível' :
+           !areFieldsFilled ? 'Preencha todos os campos' :
            'Finalizar cadastro'}
         </button>
       </form>
