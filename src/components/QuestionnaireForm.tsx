@@ -97,15 +97,16 @@ const QuestionnaireForm: React.FC = () => {
 
   const totalSteps = questions.length + 1;
 
-  // Verificar se já preencheu hoje
+  // Verificar se já preencheu na última semana
   useEffect(() => {
     const lastSubmission = localStorage.getItem('automatik-form-submission');
     if (lastSubmission) {
       const submissionDate = new Date(lastSubmission);
       const today = new Date();
+      const oneWeekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
       
-      // Verificar se foi preenchido hoje
-      if (submissionDate.toDateString() === today.toDateString()) {
+      // Verificar se foi preenchido na última semana
+      if (submissionDate > oneWeekAgo) {
         setShowAlreadySubmitted(true);
         return;
       }
@@ -137,12 +138,25 @@ const QuestionnaireForm: React.FC = () => {
     return currentPapelValue === 'Ainda não tenho blog, mas pretendo começar';
   };
 
+  const shouldGoDirectToEbook = (currentPapelValue: string) => {
+    console.log('Verificando se deve ir direto para e-book:', currentPapelValue);
+    return currentPapelValue === 'Ainda não tenho blog, mas pretendo começar';
+  };
+
   const getNextStep = (currentIndex: number, currentAnswer?: string) => {
     console.log('getNextStep chamado:', { currentIndex, currentAnswer, currentPapel: formData.papel });
     
     // Se estamos na pergunta do papel (índice 3) e a resposta foi "Ainda não tenho blog"
     if (currentIndex === 3) {
       const papelValue = currentAnswer || formData.papel;
+      if (shouldGoDirectToEbook(papelValue)) {
+        console.log('Indo direto para e-book');
+        // Marcar submissão e ir para e-book
+        localStorage.setItem('automatik-form-submission', new Date().toISOString());
+        setDisqualificationReason('papel');
+        setShowDisqualified(true);
+        return currentIndex; // Não avançar passo
+      }
       if (shouldSkipQuantidadeBlogsQuestion(papelValue)) {
         console.log('Pulando pergunta de quantidade de blogs');
         return 5; // Pular para a pergunta do investimento (índice 5)
@@ -177,6 +191,11 @@ const QuestionnaireForm: React.FC = () => {
   const handleNext = (currentAnswer?: string) => {
     const nextStep = getNextStep(currentStep, currentAnswer);
     console.log('Próximo passo calculado:', nextStep);
+    
+    // Se não mudou o passo, significa que foi para e-book
+    if (nextStep === currentStep && showDisqualified) {
+      return;
+    }
     
     if (nextStep < questions.length) {
       setCurrentStep(nextStep);

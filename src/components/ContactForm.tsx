@@ -28,7 +28,8 @@ const ContactForm: React.FC<ContactFormProps> = ({
     onSubmit();
   };
 
-  const isFormValid = formData.nome && formData.email && formData.telefone && formData.blogLink;
+  // Só permite submissão se todos os campos estão preenchidos E o blog foi verificado
+  const isFormValid = formData.nome && formData.email && formData.telefone && formData.blogLink && wordPressChecked;
   const isBlocked = wordPressChecked && !isWordPress;
 
   return (
@@ -130,7 +131,9 @@ const ContactForm: React.FC<ContactFormProps> = ({
               : 'bg-gray-600 text-gray-400 cursor-not-allowed'
           }`}
         >
-          {isBlocked ? 'Site não compatível' : 'Finalizar cadastro'}
+          {isBlocked ? 'Site não compatível' : 
+           !wordPressChecked ? 'Verificando blog...' : 
+           'Finalizar cadastro'}
         </button>
       </form>
     </div>
