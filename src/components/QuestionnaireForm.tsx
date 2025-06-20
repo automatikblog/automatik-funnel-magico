@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useFormData } from '../hooks/useFormData';
 import ProgressBar from './ProgressBar';
@@ -63,6 +62,16 @@ const questions = [
     ]
   },
   {
+    id: 'quantidadeBlogs',
+    title: 'Você gerencia quantos blogs atualmente (seja seu ou de clientes)?',
+    options: [
+      'Apenas 1 blog',
+      'De 2 a 3 blogs',
+      'De 4 a 10 blogs',
+      'Mais de 10 blogs'
+    ]
+  },
+  {
     id: 'investimento',
     title: 'Nossos planos variam entre R$67 e R$1.299 por mês, dependendo do volume de artigos, integrações e recursos avançados. Se você enxergar valor no que a Automatik Blog oferece — e isso fizer sentido pro crescimento do seu blog ou agência — você estaria disposto a fazer esse investimento?',
     options: [
@@ -123,6 +132,26 @@ const QuestionnaireForm: React.FC = () => {
     return null;
   };
 
+  const shouldSkipQuantidadeBlogsQuestion = () => {
+    return formData.papel === 'Ainda não tenho blog, mas pretendo começar';
+  };
+
+  const getNextStep = (currentIndex: number) => {
+    // Se estamos na pergunta do papel (índice 3) e a resposta foi "Ainda não tenho blog"
+    if (currentIndex === 3 && shouldSkipQuantidadeBlogsQuestion()) {
+      return 5; // Pular para a pergunta do investimento (índice 5)
+    }
+    return currentIndex + 1;
+  };
+
+  const getPreviousStep = (currentIndex: number) => {
+    // Se estamos na pergunta do investimento (índice 5) e devemos pular quantidade de blogs
+    if (currentIndex === 5 && shouldSkipQuantidadeBlogsQuestion()) {
+      return 3; // Voltar para a pergunta do papel (índice 3)
+    }
+    return currentIndex - 1;
+  };
+
   const handleQuestionAnswer = (field: string, answer: string) => {
     updateField(field as keyof typeof formData, answer);
     
@@ -138,8 +167,10 @@ const QuestionnaireForm: React.FC = () => {
   };
 
   const handleNext = () => {
-    if (currentStep < questions.length - 1) {
-      setCurrentStep(prev => prev + 1);
+    const nextStep = getNextStep(currentStep);
+    
+    if (nextStep < questions.length) {
+      setCurrentStep(nextStep);
     } else {
       setShowContactForm(true);
     }
@@ -187,7 +218,8 @@ const QuestionnaireForm: React.FC = () => {
       return;
     }
     if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
+      const prevStep = getPreviousStep(currentStep);
+      setCurrentStep(prevStep);
     }
   };
 

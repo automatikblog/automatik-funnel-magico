@@ -7,6 +7,7 @@ export interface FormData {
   frequencia: string;
   familiaridade: string;
   papel: string;
+  quantidadeBlogs: string;
   investimento: string;
   nome: string;
   email: string;
@@ -43,6 +44,7 @@ export const useFormData = () => {
     frequencia: '',
     familiaridade: '',
     papel: '',
+    quantidadeBlogs: '',
     investimento: '',
     nome: '',
     email: '',
