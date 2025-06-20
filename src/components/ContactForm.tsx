@@ -1,5 +1,6 @@
 
 import React from 'react';
+import InputMask from 'react-input-mask';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { FormData } from '../hooks/useFormData';
 import WordPressDetector from './WordPressDetector';
@@ -28,13 +29,22 @@ const ContactForm: React.FC<ContactFormProps> = ({
     onSubmit();
   };
 
-  // Validação mais clara: todos os campos preenchidos + WordPress detectado
+  // Validação: todos os campos preenchidos + WordPress detectado com sucesso
   const areFieldsFilled = formData.nome && formData.email && formData.telefone && formData.blogLink;
-  const isWordPressValid = wordPressChecked && isWordPress;
-  const isFormValid = areFieldsFilled && isWordPressValid;
+  const isWordPressDetected = wordPressChecked && isWordPress;
+  const isFormValid = areFieldsFilled && isWordPressDetected;
   
   // Mostrar erro apenas se foi verificado e NÃO é WordPress
   const shouldShowError = wordPressChecked && !isWordPress;
+
+  console.log('ContactForm validation states:', {
+    areFieldsFilled,
+    wordPressChecked,
+    isWordPress,
+    isWordPressDetected,
+    isFormValid,
+    shouldShowError
+  });
 
   return (
     <div className="animate-fade-in-up">
@@ -89,15 +99,22 @@ const ContactForm: React.FC<ContactFormProps> = ({
           <label htmlFor="telefone" className="block text-sm font-medium text-gray-300 mb-2">
             WhatsApp *
           </label>
-          <input
-            type="tel"
-            id="telefone"
-            required
+          <InputMask
+            mask="(99) 99999-9999"
             value={formData.telefone}
             onChange={(e) => updateField('telefone', e.target.value)}
-            className="w-full px-4 py-3 bg-automatik-dark-secondary border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-automatik-turquoise focus:ring-1 focus:ring-automatik-turquoise focus:outline-none transition-colors"
-            placeholder="(11) 99999-9999"
-          />
+          >
+            {(inputProps: any) => (
+              <input
+                {...inputProps}
+                type="tel"
+                id="telefone"
+                required
+                className="w-full px-4 py-3 bg-automatik-dark-secondary border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-automatik-turquoise focus:ring-1 focus:ring-automatik-turquoise focus:outline-none transition-colors"
+                placeholder="(11) 99999-9999"
+              />
+            )}
+          </InputMask>
         </div>
 
         <div>
@@ -110,7 +127,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
             onWordPressDetected={updateWordPressStatus}
           />
           
-          {/* Só mostrar mensagem de erro se foi verificado E não é WordPress */}
+          {/* Só mostrar mensagem de erro se foi verificado e NÃO é WordPress */}
           {shouldShowError && (
             <div className="mt-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
               <div className="flex items-start space-x-3">

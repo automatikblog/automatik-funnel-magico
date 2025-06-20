@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export interface FormData {
   area: string;
@@ -53,6 +53,50 @@ export const useFormData = () => {
   });
 
   const [isWordPress, setIsWordPress] = useState<boolean>(false);
+  const [locationData, setLocationData] = useState<{ cidade?: string; estado?: string }>({});
+
+  // Capturar localização quando o componente for montado
+  useEffect(() => {
+    const fetchLocation = async () => {
+      try {
+        console.log('Tentando capturar localização...');
+        
+        // Tentar usar a API do ipinfo.io (gratuita)
+        const response = await fetch('https://ipinfo.io/json?token=');
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Dados de localização capturados:', data);
+          
+          setLocationData({
+            cidade: data.city,
+            estado: data.region
+          });
+        } else {
+          console.log('Erro ao capturar localização via ipinfo.io');
+        }
+      } catch (error) {
+        console.log('Erro ao capturar localização:', error);
+        
+        // Fallback: tentar uma API alternativa
+        try {
+          const fallbackResponse = await fetch('https://api.ipgeolocation.io/ipgeo?apiKey=');
+          if (fallbackResponse.ok) {
+            const fallbackData = await fallbackResponse.json();
+            console.log('Dados de localização (fallback) capturados:', fallbackData);
+            
+            setLocationData({
+              cidade: fallbackData.city,
+              estado: fallbackData.state_prov
+            });
+          }
+        } catch (fallbackError) {
+          console.log('Erro no fallback de localização:', fallbackError);
+        }
+      }
+    };
+
+    fetchLocation();
+  }, []);
 
   const updateField = (field: keyof FormData, value: string) => {
     setFormData(prev => ({
@@ -62,6 +106,7 @@ export const useFormData = () => {
   };
 
   const updateWordPressStatus = (status: boolean) => {
+    console.log('WordPress status atualizado para:', status);
     setIsWordPress(status);
   };
 
@@ -126,9 +171,12 @@ export const useFormData = () => {
     console.log('Clickid capturado (raw):', clickidRaw);
     console.log('Clickid final:', clickid);
     console.log('Tipo do clickid final:', typeof clickid);
+    console.log('Dados de localização incluídos:', locationData);
     
     return {
       ...formData,
+      cidade: locationData.cidade,
+      estado: locationData.estado,
       dispositivo: isMobile ? 'mobile' : 'desktop',
       utms: {
         utm_source: urlParams.get('utm_source') || undefined,
@@ -156,6 +204,7 @@ export const useFormData = () => {
       console.log('=== DADOS SENDO ENVIADOS PARA WEBHOOK ===');
       console.log('Dados completos:', enrichedData);
       console.log('Clickid específico sendo enviado:', enrichedData.clickid);
+      console.log('Localização sendo enviada:', { cidade: enrichedData.cidade, estado: enrichedData.estado });
       console.log('Tipo do clickid no objeto final:', typeof enrichedData.clickid);
       
       const response = await fetch('https://webhooks.automatiklabs.com/webhook/cap-trial', {

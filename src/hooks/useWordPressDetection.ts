@@ -22,10 +22,9 @@ export const useWordPressDetection = () => {
       normalizedUrl = 'https://' + normalizedUrl;
     }
 
-    setResults(prev => ({
-      ...prev,
-      [url]: { isWordPress: false, isLoading: true, error: null, checked: false }
-    }));
+    // Marcar como carregando
+    const loadingState = { isWordPress: false, isLoading: true, error: null, checked: false };
+    setResults(prev => ({ ...prev, [url]: loadingState }));
 
     try {
       let isWordPress = false;
@@ -102,26 +101,47 @@ export const useWordPressDetection = () => {
         }
       }
 
-      const result = { isWordPress, isLoading: false, error: null, checked: true };
-      setResults(prev => ({ ...prev, [url]: result }));
-      return result;
+      console.log('=== RESULTADO FINAL DA DETECÇÃO ===');
+      console.log('URL:', url);
+      console.log('É WordPress:', isWordPress);
+      console.log('Verificado:', true);
+
+      const finalResult = { isWordPress, isLoading: false, error: null, checked: true };
+      setResults(prev => ({ ...prev, [url]: finalResult }));
+      
+      // Pequeno delay para garantir que o estado seja atualizado corretamente
+      setTimeout(() => {
+        console.log('Estado final salvo para URL:', url, finalResult);
+      }, 100);
+
+      return finalResult;
 
     } catch (error) {
       console.error('Erro na detecção de WordPress:', error);
-      const result = { 
+      const errorResult = { 
         isWordPress: false, 
         isLoading: false, 
         error: 'Não foi possível verificar o site', 
         checked: true 
       };
-      setResults(prev => ({ ...prev, [url]: result }));
-      return result;
+      setResults(prev => ({ ...prev, [url]: errorResult }));
+      return errorResult;
     }
   }, []);
 
   const getResult = (url: string): WordPressDetectionResult => {
-    return results[url] || { isWordPress: false, isLoading: false, error: null, checked: false };
+    const result = results[url] || { isWordPress: false, isLoading: false, error: null, checked: false };
+    console.log('getResult para URL:', url, 'Resultado:', result);
+    return result;
   };
 
-  return { detectWordPress, getResult };
+  const clearResult = (url: string) => {
+    setResults(prev => {
+      const newResults = { ...prev };
+      delete newResults[url];
+      return newResults;
+    });
+  };
+
+  return { detectWordPress, getResult, clearResult };
 };
