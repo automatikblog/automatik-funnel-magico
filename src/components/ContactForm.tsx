@@ -29,22 +29,29 @@ const ContactForm: React.FC<ContactFormProps> = ({
     onSubmit();
   };
 
-  // Validação: todos os campos preenchidos + WordPress detectado com sucesso
   const areFieldsFilled = formData.nome && formData.email && formData.telefone && formData.blogLink;
-  const isWordPressDetected = wordPressChecked && isWordPress;
-  const isFormValid = areFieldsFilled && isWordPressDetected;
+  
+  // Validação simplificada: só habilitar quando WordPress for detectado
+  const isFormValid = areFieldsFilled && wordPressChecked && isWordPress;
   
   // Mostrar erro apenas se foi verificado e NÃO é WordPress
-  const shouldShowError = wordPressChecked && !isWordPress;
+  const shouldShowError = wordPressChecked && !isWordPress && formData.blogLink.trim();
 
-  console.log('ContactForm validation states:', {
-    areFieldsFilled,
-    wordPressChecked,
-    isWordPress,
-    isWordPressDetected,
-    isFormValid,
-    shouldShowError
-  });
+  console.log('=== ContactForm Validation Debug ===');
+  console.log('areFieldsFilled:', areFieldsFilled);
+  console.log('wordPressChecked:', wordPressChecked);
+  console.log('isWordPress:', isWordPress);
+  console.log('isFormValid:', isFormValid);
+  console.log('shouldShowError:', shouldShowError);
+  console.log('blogLink:', formData.blogLink);
+
+  const getButtonText = () => {
+    if (!areFieldsFilled) return 'Preencha todos os campos';
+    if (!wordPressChecked && formData.blogLink.trim()) return 'Verificando blog...';
+    if (shouldShowError) return 'Site não compatível';
+    if (isFormValid) return 'Finalizar cadastro';
+    return 'Aguardando verificação';
+  };
 
   return (
     <div className="animate-fade-in-up">
@@ -127,7 +134,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
             onWordPressDetected={updateWordPressStatus}
           />
           
-          {/* Só mostrar mensagem de erro se foi verificado e NÃO é WordPress */}
           {shouldShowError && (
             <div className="mt-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
               <div className="flex items-start space-x-3">
@@ -153,10 +159,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
               : 'bg-gray-600 text-gray-400 cursor-not-allowed'
           }`}
         >
-          {!wordPressChecked ? 'Verificando blog...' : 
-           shouldShowError ? 'Site não compatível' :
-           !areFieldsFilled ? 'Preencha todos os campos' :
-           'Finalizar cadastro'}
+          {getButtonText()}
         </button>
       </form>
     </div>

@@ -228,11 +228,17 @@ const QuestionnaireForm: React.FC = () => {
   };
 
   const handleContactSubmit = async () => {
+    console.log('=== handleContactSubmit Debug ===');
+    console.log('isWordPress:', isWordPress);
+    console.log('wordPressChecked:', wordPressChecked);
+    console.log('blogLink:', formData.blogLink);
+    
     // Verificar qualificação antes de enviar
     const disqualificationReason = checkForQualification();
     
     // Verificar se não é WordPress
     if (!isWordPress && wordPressChecked) {
+      console.log('Desqualificado: não é WordPress');
       localStorage.setItem('automatik-form-submission', new Date().toISOString());
       localStorage.setItem('automatik-disqualification', JSON.stringify({
         reason: 'wordpress',
@@ -245,6 +251,7 @@ const QuestionnaireForm: React.FC = () => {
     
     // Se foi desqualificado por outras razões
     if (disqualificationReason) {
+      console.log('Desqualificado por:', disqualificationReason);
       localStorage.setItem('automatik-form-submission', new Date().toISOString());
       localStorage.setItem('automatik-disqualification', JSON.stringify({
         reason: disqualificationReason,
@@ -255,6 +262,7 @@ const QuestionnaireForm: React.FC = () => {
       return;
     }
     
+    console.log('Enviando formulário...');
     const success = await submitForm();
     if (success) {
       // Marcar como preenchido - qualificado (sem desqualificação)
@@ -264,6 +272,10 @@ const QuestionnaireForm: React.FC = () => {
   };
 
   const handleWordPressStatusUpdate = (status: boolean) => {
+    console.log('=== WordPress Status Update ===');
+    console.log('Novo status:', status);
+    console.log('Status anterior:', isWordPress);
+    
     setIsWordPress(status);
     setWordPressChecked(true);
     updateWordPressStatus(status);

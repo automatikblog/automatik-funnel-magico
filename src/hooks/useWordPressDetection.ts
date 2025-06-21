@@ -22,6 +22,10 @@ export const useWordPressDetection = () => {
       normalizedUrl = 'https://' + normalizedUrl;
     }
 
+    console.log('=== Iniciando detecção WordPress ===');
+    console.log('URL original:', url);
+    console.log('URL normalizada:', normalizedUrl);
+
     // Marcar como carregando
     const loadingState = { isWordPress: false, isLoading: true, error: null, checked: false };
     setResults(prev => ({ ...prev, [url]: loadingState }));
@@ -90,17 +94,6 @@ export const useWordPressDetection = () => {
         }
       }
 
-      // Método 3: Verificar URLs típicas do WordPress (apenas se outros métodos falharam)
-      if (!isWordPress) {
-        const wpPaths = ['/wp-content/', '/wp-includes/', '/wp-admin/'];
-        const hasWpPath = wpPaths.some(path => normalizedUrl.includes(path));
-        
-        if (hasWpPath) {
-          console.log('Path típico do WordPress encontrado na URL');
-          isWordPress = true;
-        }
-      }
-
       console.log('=== RESULTADO FINAL DA DETECÇÃO ===');
       console.log('URL:', url);
       console.log('É WordPress:', isWordPress);
@@ -108,11 +101,6 @@ export const useWordPressDetection = () => {
 
       const finalResult = { isWordPress, isLoading: false, error: null, checked: true };
       setResults(prev => ({ ...prev, [url]: finalResult }));
-      
-      // Pequeno delay para garantir que o estado seja atualizado corretamente
-      setTimeout(() => {
-        console.log('Estado final salvo para URL:', url, finalResult);
-      }, 100);
 
       return finalResult;
 
@@ -131,11 +119,11 @@ export const useWordPressDetection = () => {
 
   const getResult = (url: string): WordPressDetectionResult => {
     const result = results[url] || { isWordPress: false, isLoading: false, error: null, checked: false };
-    console.log('getResult para URL:', url, 'Resultado:', result);
     return result;
   };
 
   const clearResult = (url: string) => {
+    console.log('Limpando resultado para URL:', url);
     setResults(prev => {
       const newResults = { ...prev };
       delete newResults[url];

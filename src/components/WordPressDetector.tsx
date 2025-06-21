@@ -14,9 +14,17 @@ const WordPressDetector: React.FC<WordPressDetectorProps> = ({
   onUrlChange, 
   onWordPressDetected 
 }) => {
-  const { detectWordPress, getResult } = useWordPressDetection();
+  const { detectWordPress, getResult, clearResult } = useWordPressDetection();
   const [debouncedUrl, setDebouncedUrl] = useState(url);
+  const [lastProcessedUrl, setLastProcessedUrl] = useState('');
+  
   const result = getResult(url);
+
+  console.log('=== WordPressDetector Debug ===');
+  console.log('Current URL:', url);
+  console.log('Debounced URL:', debouncedUrl);
+  console.log('Last Processed URL:', lastProcessedUrl);
+  console.log('Current Result:', result);
 
   // Debounce URL changes
   useEffect(() => {
@@ -27,14 +35,28 @@ const WordPressDetector: React.FC<WordPressDetectorProps> = ({
     return () => clearTimeout(timer);
   }, [url]);
 
+  // Limpar resultado quando URL muda
+  useEffect(() => {
+    if (url !== lastProcessedUrl && lastProcessedUrl !== '') {
+      console.log('URL mudou, limpando resultado anterior');
+      clearResult(lastProcessedUrl);
+      // Reset do status no componente pai quando URL muda
+      onWordPressDetected(false);
+    }
+  }, [url, lastProcessedUrl, clearResult, onWordPressDetected]);
+
   // Trigger detection when debounced URL changes
   useEffect(() => {
-    if (debouncedUrl && debouncedUrl.trim() && !result.checked) {
+    if (debouncedUrl && debouncedUrl.trim() && debouncedUrl !== lastProcessedUrl) {
+      console.log('Iniciando detecção para URL:', debouncedUrl);
+      setLastProcessedUrl(debouncedUrl);
+      
       detectWordPress(debouncedUrl).then((detectionResult) => {
+        console.log('Resultado da detecção:', detectionResult);
         onWordPressDetected(detectionResult.isWordPress);
       });
     }
-  }, [debouncedUrl, detectWordPress, onWordPressDetected, result.checked]);
+  }, [debouncedUrl, detectWordPress, onWordPressDetected, lastProcessedUrl]);
 
   const getStatusIcon = () => {
     if (result.isLoading) {
