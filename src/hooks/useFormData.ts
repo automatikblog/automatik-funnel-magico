@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface FormData {
   area: string;
@@ -35,6 +35,7 @@ export interface EnrichedData extends FormData {
   form: string;
   isWordPress?: boolean;
   isQualified?: boolean;
+  submission_id?: string;
 }
 
 export const useFormData = () => {
@@ -54,6 +55,8 @@ export const useFormData = () => {
 
   const [isWordPress, setIsWordPress] = useState<boolean>(false);
   const [locationData, setLocationData] = useState<{ cidade?: string; estado?: string }>({});
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submissionId, setSubmissionId] = useState<string>('');
 
   // Capturar localização quando o componente for montado
   useEffect(() => {
@@ -163,6 +166,12 @@ export const useFormData = () => {
     const userAgent = navigator.userAgent;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
     
+    // Generate unique submission ID if not exists
+    const currentSubmissionId = submissionId || uuidv4();
+    if (!submissionId) {
+      setSubmissionId(currentSubmissionId);
+    }
+    
     // Capturar o cookie rtkclickid-store no momento do envio usando o método que funciona
     console.log('=== CAPTURANDO CLICKID NO MOMENTO DO ENVIO ===');
     const clickidRaw = getCookieRaw('rtkclickid-store');
@@ -192,20 +201,27 @@ export const useFormData = () => {
       clickid: clickid,
       form: 'lovableform',
       isWordPress: isWordPress,
-      isQualified: isQualified()
+      isQualified: isQualified(),
+      submission_id: currentSubmissionId
     };
   };
 
   const submitForm = async (): Promise<boolean> => {
+    // Prevent multiple submissions
+    if (isSubmitting) {
+      console.log('=== TENTATIVA DE SUBMISSÃO DUPLICADA BLOQUEADA ===');
+      console.log('Status atual de submissão:', isSubmitting);
+      return false;
+    }
+
     try {
-      // Capturar dados enriquecidos no momento exato do envio
+      setIsSubmitting(true);
       const enrichedData = getEnrichedData();
       
-      console.log('=== DADOS SENDO ENVIADOS PARA WEBHOOK ===');
-      console.log('Dados completos:', enrichedData);
-      console.log('Clickid específico sendo enviado:', enrichedData.clickid);
-      console.log('Localização sendo enviada:', { cidade: enrichedData.cidade, estado: enrichedData.estado });
-      console.log('Tipo do clickid no objeto final:', typeof enrichedData.clickid);
+      console.log('=== INICIANDO SUBMISSÃO ÚNICA ===');
+      console.log('ID da submissão:', enrichedData.submission_id);
+      console.log('Timestamp:', enrichedData.data_submissao);
+      console.log('Status isSubmitting:', isSubmitting);
       
       const response = await fetch('https://webhooks.automatiklabs.com/webhook/cap-trial', {
         method: 'POST',
@@ -216,7 +232,8 @@ export const useFormData = () => {
       });
 
       if (response.ok) {
-        console.log('Formulário enviado com sucesso!');
+        console.log('=== FORMULÁRIO ENVIADO COM SUCESSO ===');
+        console.log('ID da submissão enviada:', enrichedData.submission_id);
         return true;
       } else {
         console.error('Erro ao enviar formulário:', response.status);
@@ -225,6 +242,12 @@ export const useFormData = () => {
     } catch (error) {
       console.error('Erro ao enviar formulário:', error);
       return false;
+    } finally {
+      // Reset submission state after a delay to prevent immediate re-submissions
+      setTimeout(() => {
+        setIsSubmitting(false);
+        console.log('Status de submissão resetado');
+      }, 2000);
     }
   };
 
@@ -234,6 +257,7 @@ export const useFormData = () => {
     updateWordPressStatus,
     submitForm,
     getEnrichedData,
-    isQualified: isQualified()
+    isQualified: isQualified(),
+    isSubmitting
   };
 };

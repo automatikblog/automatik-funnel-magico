@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useFormData } from '../hooks/useFormData';
 import ProgressBar from './ProgressBar';
@@ -94,7 +93,7 @@ const QuestionnaireForm: React.FC = () => {
   const [isWordPress, setIsWordPress] = useState(false);
   const [wordPressChecked, setWordPressChecked] = useState(false);
   
-  const { formData, updateField, updateWordPressStatus, submitForm, isQualified } = useFormData();
+  const { formData, updateField, updateWordPressStatus, submitForm, isQualified, isSubmitting } = useFormData();
 
   const totalSteps = questions.length + 1;
 
@@ -338,6 +337,7 @@ const QuestionnaireForm: React.FC = () => {
               onPrevious={handlePrevious}
               isWordPress={isWordPress}
               wordPressChecked={wordPressChecked}
+              isSubmitting={isSubmitting}
             />
           </Suspense>
         </div>

@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import InputMask from 'react-input-mask';
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
 import { FormData } from '../hooks/useFormData';
 import WordPressDetector from './WordPressDetector';
 
@@ -13,6 +13,7 @@ interface ContactFormProps {
   onPrevious: () => void;
   isWordPress: boolean;
   wordPressChecked: boolean;
+  isSubmitting?: boolean;
 }
 
 const ContactForm: React.FC<ContactFormProps> = ({ 
@@ -22,30 +23,48 @@ const ContactForm: React.FC<ContactFormProps> = ({
   onSubmit, 
   onPrevious,
   isWordPress,
-  wordPressChecked
+  wordPressChecked,
+  isSubmitting = false
 }) => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitClicked, setSubmitClicked] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit();
+    
+    // Prevent multiple clicks
+    if (submitClicked || isSubmitting) {
+      console.log('=== TENTATIVA DE CLIQUE DUPLICADO BLOQUEADA ===');
+      console.log('submitClicked:', submitClicked);
+      console.log('isSubmitting:', isSubmitting);
+      return;
+    }
+
+    console.log('=== INICIANDO SUBMISSÃO DO FORMULÁRIO ===');
+    setSubmitClicked(true);
+    
+    try {
+      await onSubmit();
+    } finally {
+      // Reset after a delay to prevent rapid clicks
+      setTimeout(() => {
+        setSubmitClicked(false);
+      }, 3000);
+    }
   };
 
   const areFieldsFilled = formData.nome && formData.email && formData.telefone && formData.blogLink;
-  
-  // Validação simplificada: só habilitar quando WordPress for detectado
   const isFormValid = areFieldsFilled && wordPressChecked && isWordPress;
-  
-  // Mostrar erro apenas se foi verificado e NÃO é WordPress
   const shouldShowError = wordPressChecked && !isWordPress && formData.blogLink.trim();
+  const isButtonDisabled = !isFormValid || isSubmitting || submitClicked;
 
-  console.log('=== ContactForm Validation Debug ===');
-  console.log('areFieldsFilled:', areFieldsFilled);
-  console.log('wordPressChecked:', wordPressChecked);
-  console.log('isWordPress:', isWordPress);
+  console.log('=== ContactForm State Debug ===');
   console.log('isFormValid:', isFormValid);
-  console.log('shouldShowError:', shouldShowError);
-  console.log('blogLink:', formData.blogLink);
+  console.log('isSubmitting:', isSubmitting);
+  console.log('submitClicked:', submitClicked);
+  console.log('isButtonDisabled:', isButtonDisabled);
 
   const getButtonText = () => {
+    if (isSubmitting || submitClicked) return 'Enviando...';
     if (!areFieldsFilled) return 'Preencha todos os campos';
     if (!wordPressChecked && formData.blogLink.trim()) return 'Verificando blog...';
     if (shouldShowError) return 'Site não compatível';
@@ -152,13 +171,16 @@ const ContactForm: React.FC<ContactFormProps> = ({
 
         <button
           type="submit"
-          disabled={!isFormValid}
-          className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all ${
-            isFormValid
+          disabled={isButtonDisabled}
+          className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all flex items-center justify-center ${
+            isFormValid && !isSubmitting && !submitClicked
               ? 'bg-automatik-turquoise text-automatik-dark hover:bg-automatik-turquoise/90 transform hover:scale-[1.02]'
               : 'bg-gray-600 text-gray-400 cursor-not-allowed'
           }`}
         >
+          {(isSubmitting || submitClicked) && (
+            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+          )}
           {getButtonText()}
         </button>
       </form>
