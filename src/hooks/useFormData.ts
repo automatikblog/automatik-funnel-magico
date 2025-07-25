@@ -172,9 +172,9 @@ export const useFormData = () => {
       setSubmissionId(currentSubmissionId);
     }
     
-    // Capturar o cookie rtkclickid-store no momento do envio usando o método que funciona
+    // Capturar o cookie mcclickid-store no momento do envio usando o método que funciona
     console.log('=== CAPTURANDO CLICKID NO MOMENTO DO ENVIO ===');
-    const clickidRaw = getCookieRaw('rtkclickid-store');
+    const clickidRaw = getCookieRaw('mcclickid-store');
     const clickid = clickidRaw || undefined;
     
     console.log('Clickid capturado (raw):', clickidRaw);
